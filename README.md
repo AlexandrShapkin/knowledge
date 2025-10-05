@@ -1,18 +1,22 @@
-# Quartz v4
+# 📘 База знаний
 
-> “[One] who works with the door open gets all kinds of interruptions, but [they] also occasionally gets clues as to what the world is and what might be important.” — Richard Hamming
+Это моя открытая база знаний по IT: теория, заметки, практические решения и просто всё, что показалось полезным в процессе работы или изучения.
 
-Quartz is a set of tools that helps you publish your [digital garden](https://jzhao.xyz/posts/networked-thought) and notes as a website for free.
-Quartz v4 features a from-the-ground rewrite focusing on end-user extensibility and ease-of-use.
+База построена на [Quartz](https://github.com/jackyzha0/quartz) и публикуется через GitHub Pages:  
+🔗 **https://knowledge.alexandrshapkin.ru/**
 
-🔗 Read the documentation and get started: https://quartz.jzhao.xyz/
+## Что внутри
 
-[Join the Discord Community](https://discord.gg/cRFFHYye7t)
+- Теоретические заметки по разным темам.
+- Подходы, которые использовал на практике.
+- Всё, что может пригодиться в будущем.
 
-## Sponsors
+Файлы лежат в формате Markdown и могут открываться прямо в [Obsidian](https://obsidian.md).
 
-<p align="center">
-  <a href="https://github.com/sponsors/jackyzha0">
-    <img src="https://cdn.jsdelivr.net/gh/jackyzha0/jackyzha0/sponsorkit/sponsors.svg" />
-  </a>
-</p>
+## Зачем это
+
+Чтобы не терять знания, сохранять структуру, переиспользовать наработки и при желании делиться ими с другими.
+
+## 📂 Content
+
+Все заметки — в папке [`/content`](./content). Структура может меняться по мере роста базы.
