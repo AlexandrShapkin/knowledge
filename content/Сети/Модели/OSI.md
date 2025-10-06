@@ -1,6 +1,6 @@
 ---
 title: OSI
-draft: false
+draft: true
 tags:
   -
 ---

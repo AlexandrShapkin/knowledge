@@ -1,6 +1,6 @@
 ---
 title: Протокол IP
-draft: true
+draft: false
 tags:
   - computer-networks
   - tcp/ip

@@ -1,6 +1,6 @@
 ---
 title: Протокол ICMP
-draft: true
+draft: false
 tags:
   - computer-networks
   - tcp/ip
