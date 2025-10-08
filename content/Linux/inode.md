@@ -1,5 +1,5 @@
 ---
-title: idone
+title: inode
 draft: false
 tags:
   - linux
