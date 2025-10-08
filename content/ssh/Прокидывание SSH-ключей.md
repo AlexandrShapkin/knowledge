@@ -58,6 +58,7 @@ ssh myserver
 
 ### Использовать **Windows Terminal / PowerShell с OpenSSH**
 Современные Windows 10/11 уже включают OpenSSH-клиент.
+
 **Проверить:**
 ```powershell
 Get-Command ssh
