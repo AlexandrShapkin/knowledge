@@ -45,6 +45,7 @@ ARP решает эту задачу — находит соответствие
 |Sender IP Address|32|IP отправителя|
 |Target MAC Address|48|MAC получателя (в запросе = 0)|
 |Target IP Address|32|IP получателя|
+![](https://media.geeksforgeeks.org/wp-content/uploads/20230210180525/ARP-Green.png)
 
 ARP инкапсулируется **внутри кадра Ethernet**, где поле EtherType = `0x0806`.
 
