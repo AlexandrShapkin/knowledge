@@ -4,7 +4,7 @@ draft: false
 tags:
   - ssh
 ---
-## Генерация ключа
+## Генерация ключаq
 **Linux / macOS / Windows (через WSL или Git Bash):**
 ```bash
 ssh-keygen -t ed25519 -C "your_email@example.com"
