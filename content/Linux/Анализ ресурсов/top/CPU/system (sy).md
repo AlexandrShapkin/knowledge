@@ -2,7 +2,10 @@
 title: system (sy)
 draft: false
 tags:
-  -
+  - linux
+  - анализ_ресурсов
+  - top
+  - top_cpu
 ---
 `system` — процент времени CPU, затраченный на выполнение кода ядра.
 

@@ -3,6 +3,7 @@ title: RED S.O.S Dependencies (Зависимости службы)
 draft: false
 tags:
   - траблшутинг
+  - computer-networks
 ---
 Цель: убедиться, что ключевые сервисы доступны и работают.
 
