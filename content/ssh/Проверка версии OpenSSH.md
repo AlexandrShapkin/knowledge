@@ -126,4 +126,4 @@ ssh -G host.example.com
 ssh -vvv user@host.example.com
 ```
 
-Подробнее: [[Диагностика SSH]]
+Подробнее: [Диагностика SSH](Диагностика%20SSH.md)

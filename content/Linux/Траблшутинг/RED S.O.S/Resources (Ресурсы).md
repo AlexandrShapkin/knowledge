@@ -15,7 +15,7 @@ tags:
 - Высокий _LA_ при низком %CPU user — признак I/O-голодания.  
 
 Команды:
-- [[htop|htop]]:
+- [htop](../../Анализ%20ресурсов/top/htop.md):
 ```bash
 htop cat /proc/loadavg
 ```
