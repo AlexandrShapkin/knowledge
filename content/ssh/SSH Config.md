@@ -2,7 +2,8 @@
 title: SSH Config
 draft: false
 tags:
-  -
+  - ssh
+  - configuration
 ---
 ## Назначение
 

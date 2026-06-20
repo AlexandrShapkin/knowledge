@@ -1,5 +1,7 @@
 ---
 title: База знаний
+tags:
+  - knowledge-base
 ---
 
 ## LeetCode

@@ -2,7 +2,9 @@
 title: pvc
 draft: false
 tags:
-  -
+  - kubernetes
+  - manifest
+  - persistent-volume-claim
 ---
 ```yaml
 apiVersion: v1

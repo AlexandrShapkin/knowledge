@@ -2,7 +2,10 @@
 title: service-nodeport
 draft: false
 tags:
-  -
+  - kubernetes
+  - manifest
+  - service
+  - nodeport
 ---
 ```yaml
 apiVersion: v1
