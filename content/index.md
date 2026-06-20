@@ -4,5 +4,16 @@ tags:
   - knowledge-base
 ---
 
-## LeetCode
-[9. Palindrome Number](Алгоритмы%20и%20структуры%20данных/Алгоритмы/LeetCode/9.%20Palindrome%20Number.md)
+## Основные разделы
+
+- [Linux](Linux/index.md)
+- [Компьютерные сети](Сети/index.md)
+- [Kubernetes](Kubernetes/index.md)
+- [SSH](ssh/index.md)
+- [Docker](Docker/index.md)
+- [Go](Golang/index.md)
+- [Git](Git/index.md)
+- [Алгоритмы и структуры данных](Алгоритмы%20и%20структуры%20данных/index.md)
+- [Машинное обучение](Машинное%20обучение/index.md)
+- [Практические заметки](Заметки/index.md)
+- [Формат заметок](Формат%20заметок.md)
