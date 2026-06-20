@@ -34,7 +34,8 @@ function encodePath(value) {
     .split("/")
     .map((segment) =>
       encodeURIComponent(segment)
-        .replace(/%2F/gi, "/")
+        .replace(/\(/g, "%28")
+        .replace(/\)/g, "%29")
         .replace(/'/g, "%27"),
     )
     .join("/")
