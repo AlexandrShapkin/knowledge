@@ -1,0 +1,44 @@
+name: Run SSH link repair
+
+on:
+  push:
+    branches:
+      - fix/quartz-relative-links
+    paths:
+      - .github/workflows/run-link-fixes.yml
+      - scripts/fix-broken-relative-links.mjs
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: fix/quartz-relative-links
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.17
+
+      - name: Repair links
+        run: node scripts/fix-broken-relative-links.mjs
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate links
+        run: npm run content:links
+
+      - name: Build Quartz
+        run: npx quartz build
+
+      - name: Commit repaired links
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content/ssh/Диагностика\ SSH.md "content/ssh/SSH ключи/index.md"
+          git commit -m "fix(content): correct SSH relative links"
+          git push origin fix/quartz-relative-links
