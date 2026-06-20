@@ -20,7 +20,9 @@
     "profile": "0x -D prof ./quartz/bootstrap-cli.mjs build --concurrency=1",
     "sync": "node scripts/repository-sync.mjs",
     "sync:test": "node --test scripts/smart-sync.test.mjs scripts/repository-sync.test.mjs",
-    "content:links": "node scripts/check-content-links.mjs"
+    "content:links": "node scripts/check-content-links.mjs",
+    "content:indexes": "node scripts/ensure-content-indexes.mjs",
+    "content:indexes:check": "node scripts/ensure-content-indexes.mjs --check"
   },
   "engines": {
     "npm": ">=10.9.2",
@@ -94,7 +96,7 @@
     "to-vfile": "^8.0.0",
     "toml": "^4.1.1",
     "unified": "^11.0.5",
-    "unist-util-visit": "^5.1.0",
+    "unist-util-visit": "^5.0.0",
     "vfile": "^6.0.3",
     "workerpool": "^10.0.2",
     "ws": "^8.20.1",
