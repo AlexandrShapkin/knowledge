@@ -1,24 +1,23 @@
-name: Run content index generation
+name: Preview content index generation
 
 on:
-  push:
+  pull_request:
     branches:
-      - feat/content-directory-indexes
+      - v4
     paths:
       - .github/workflows/run-index-generation.yml
       - scripts/ensure-content-indexes.mjs
       - package.json
+      - content/**
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-        with:
-          ref: feat/content-directory-indexes
 
       - uses: actions/setup-node@v6
         with:
@@ -39,14 +38,10 @@ jobs:
       - name: Build Quartz
         run: npx quartz build
 
-      - name: Commit indexes
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add content INDEX_GENERATION_REPORT.json
-          if git diff --cached --quiet; then
-            echo "No index changes"
-            exit 0
-          fi
-          git commit -m "feat(content): add missing directory indexes"
-          git push origin feat/content-directory-indexes
+      - name: Upload generated indexes
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-content-indexes
+          path: |
+            content/**/index.md
+            INDEX_GENERATION_REPORT.json
