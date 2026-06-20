@@ -1,0 +1,44 @@
+name: Run connectivity migration
+
+on:
+  push:
+    branches:
+      - refactor/content-connectivity
+    paths:
+      - .github/workflows/run-connectivity-migration.yml
+      - scripts/apply-connectivity.mjs
+      - scripts/audit-connectivity.mjs
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: refactor/content-connectivity
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.17
+
+      - name: Apply connectivity changes
+        run: node scripts/apply-connectivity.mjs
+
+      - name: Audit connectivity
+        run: node scripts/audit-connectivity.mjs
+
+      - name: Build Quartz
+        run: |
+          npm ci
+          npx quartz build
+
+      - name: Commit connectivity changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content CONNECTIVITY_AUDIT.json CONNECTIVITY_CHANGE_REPORT.json
+          git commit -m "refactor(content): improve note connectivity"
+          git push origin refactor/content-connectivity
