@@ -33,15 +33,24 @@ jobs:
         run: npm ci
 
       - name: Validate links
-        run: npm run content:links
+        id: links
+        continue-on-error: true
+        run: npm run content:links -- --report LINK_CHECK_REPORT.json
 
       - name: Build Quartz
+        if: steps.links.outcome == 'success'
         run: npx quartz build
 
-      - name: Upload generated indexes
+      - name: Upload generated indexes and reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: generated-content-indexes
           path: |
             content/**/index.md
             INDEX_GENERATION_REPORT.json
+            LINK_CHECK_REPORT.json
+
+      - name: Fail on broken links
+        if: steps.links.outcome == 'failure'
+        run: exit 1
