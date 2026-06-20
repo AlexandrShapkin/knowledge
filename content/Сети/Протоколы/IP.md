@@ -6,7 +6,7 @@ tags:
   - tcp/ip
   - internet-layer
 ---
-**IP (Internet Protocol)** — это сетевой протокол, обеспечивающий **маршрутизацию и доставку пакетов** данных между узлами сети. Он является **сетевым уровнем (Layer 3)** модели [[OSI|OSI]] и основой всего стека [[TCP-IP|TCP-IP]].
+**IP (Internet Protocol)** — это сетевой протокол, обеспечивающий **маршрутизацию и доставку пакетов** данных между узлами сети. Он является **сетевым уровнем (Layer 3)** модели [OSI](../Модели/OSI.md) и основой всего стека [TCP-IP](../Модели/TCP-IP.md).
 Главная задача IP — **доставка пакета от источника к получателю**, даже если они находятся в разных сетях.
 
 ---
@@ -51,10 +51,10 @@ tags:
 
 ---
 ## Основные протоколы поверх IP
-- **[[TCP|TCP]] (Transmission Control Protocol)** — надёжный, с установлением соединения.
-- **[[UDP|UDP]] (User Datagram Protocol)** — простой, без соединения.
-- **[[ICMP|ICMP]] (Internet Control Message Protocol)** — служебные сообщения и диагностика (ping, traceroute).
-- **[[IGMP|IGMP]] (Internet Group Management Protocol)** — управление мультикаст-группами.
+- **[TCP](TCP.md) (Transmission Control Protocol)** — надёжный, с установлением соединения.
+- **[UDP](UDP.md) (User Datagram Protocol)** — простой, без соединения.
+- **[ICMP](ICMP.md) (Internet Control Message Protocol)** — служебные сообщения и диагностика (ping, traceroute).
+- **[IGMP](IGMP.md) (Internet Group Management Protocol)** — управление мультикаст-группами.
 
 ---
 ## Ключевые понятия

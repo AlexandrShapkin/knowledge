@@ -6,7 +6,7 @@ tags:
   - inode
 ---
 ## Просмотр inode
-Посмотреть номер [[inode|inode]] можно так:
+Посмотреть номер [inode](inode.md) можно так:
 ```bash
 ls -i file.txt
 ```
