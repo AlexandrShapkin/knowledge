@@ -4,6 +4,7 @@ draft: false
 generated: true
 tags:
   - linux
+  - анализ_ресурсов
   - load-average
   - index
 ---

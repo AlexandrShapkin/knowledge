@@ -10,4 +10,4 @@ tags:
 
 ## Разделы
 
-- [top](top/index.md)
+- [top и htop](top/index.md)
