@@ -1,30 +1,31 @@
-name: Preview content index generation
+name: Generate content directory indexes
 
 on:
-  pull_request:
+  push:
     branches:
-      - v4
+      - feat/content-directory-indexes
     paths:
       - .github/workflows/run-index-generation.yml
       - scripts/ensure-content-indexes.mjs
       - package.json
-      - content/**
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: feat/content-directory-indexes
 
       - uses: actions/setup-node@v6
         with:
           node-version: 22.17
 
       - name: Generate missing indexes
-        run: npm run content:indexes -- --report INDEX_GENERATION_REPORT.json
+        run: npm run content:indexes
 
       - name: Validate generated indexes
         run: npm run content:indexes:check
@@ -33,24 +34,19 @@ jobs:
         run: npm ci
 
       - name: Validate links
-        id: links
-        continue-on-error: true
-        run: npm run content:links -- --report LINK_CHECK_REPORT.json
+        run: npm run content:links
 
       - name: Build Quartz
-        if: steps.links.outcome == 'success'
         run: npx quartz build
 
-      - name: Upload generated indexes and reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: generated-content-indexes
-          path: |
-            content/**/index.md
-            INDEX_GENERATION_REPORT.json
-            LINK_CHECK_REPORT.json
-
-      - name: Fail on broken links
-        if: steps.links.outcome == 'failure'
-        run: exit 1
+      - name: Commit generated indexes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content
+          if git diff --cached --quiet; then
+            echo "No index changes"
+            exit 0
+          fi
+          git commit -m "feat(content): add missing directory indexes"
+          git push origin feat/content-directory-indexes
