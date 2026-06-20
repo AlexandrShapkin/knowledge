@@ -3,6 +3,9 @@ title: Прокидывание SSH-ключей
 draft: false
 tags:
   - ssh
+  - linux
+  - security
+  - authentication
 ---
 ## Генерация ключаq
 **Linux / macOS / Windows (через WSL или Git Bash):**
