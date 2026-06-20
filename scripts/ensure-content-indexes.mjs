@@ -114,24 +114,26 @@ function directoryTag(name) {
   return normalized || "index"
 }
 
+function isGeneratedIndex(file) {
+  if (!existsSync(file)) return false
+  const generated = parseFrontmatter(readFileSync(file, "utf8")).fields.get("generated")?.scalar
+  return generated?.trim().toLowerCase() === "true"
+}
+
 function nearestInheritedTags(directory) {
   let current = path.dirname(directory)
 
   while (current.startsWith(contentRoot)) {
     const indexFile = path.join(current, "index.md")
-    const tags = readTags(indexFile).filter((tag) => tag !== "index")
-    if (tags.length > 0) return tags
+    if (existsSync(indexFile) && !isGeneratedIndex(indexFile)) {
+      const tags = readTags(indexFile).filter((tag) => tag !== "index")
+      if (tags.length > 0) return tags
+    }
     if (current === contentRoot) break
     current = path.dirname(current)
   }
 
   return []
-}
-
-function isGeneratedIndex(file) {
-  if (!existsSync(file)) return false
-  const generated = parseFrontmatter(readFileSync(file, "utf8")).fields.get("generated")?.scalar
-  return generated?.trim().toLowerCase() === "true"
 }
 
 function buildIndex(directory) {
