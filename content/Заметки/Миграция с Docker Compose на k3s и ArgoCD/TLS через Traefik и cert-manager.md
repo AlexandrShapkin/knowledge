@@ -9,7 +9,7 @@ tags:
 ---
 
 ## Цепочка: интернет → роутер → Traefik → сервис
-![](../Pasted%20image%2020260531182648.png)
+![](Схема%20работы%20TLS%20через%20Traefik.png)
 ## Как cert-manager получает сертификат
 
 `ClusterIssuer` в `infrastructure/cert-manager/cluster-issuer.yaml` настраивает интеграцию с Let's Encrypt через HTTP-01 валидацию.
