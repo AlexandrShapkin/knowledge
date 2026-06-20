@@ -1,0 +1,30 @@
+{
+  "generatedAt": "2026-06-20T13:34:14.607Z",
+  "replaced": [
+    "content/index.md",
+    "content/Алгоритмы и структуры данных/Алгоритмы/index.md"
+  ],
+  "created": [
+    "content/Linux/index.md",
+    "content/Linux/Процессы/index.md",
+    "content/Linux/systemd/index.md",
+    "content/Сети/index.md",
+    "content/Сети/Протоколы/index.md",
+    "content/ssh/index.md",
+    "content/Docker/index.md",
+    "content/Golang/index.md",
+    "content/Git/index.md",
+    "content/Заметки/index.md",
+    "content/Kubernetes/Запуск приложений/Рецепты/index.md",
+    "content/Kubernetes/Запуск приложений/Рецепты/Шаблоны манифестов/index.md"
+  ],
+  "appended": [
+    "content/Сети/DNS/index.md",
+    "content/Сети/TCP-IP/index.md",
+    "content/Kubernetes/index.md",
+    "content/Kubernetes/Запуск приложений/index.md",
+    "content/Kubernetes/k3s/index.md",
+    "content/Linux/RHEL/SELinux/index.md"
+  ],
+  "skipped": []
+}
