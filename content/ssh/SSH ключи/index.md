@@ -1,5 +1,10 @@
 ---
 title: SSH-ключи
+tags:
+  - ssh
+  - security
+  - authentication
+  - cryptography
 ---
 
 ## Назначение
