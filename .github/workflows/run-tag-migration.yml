@@ -1,0 +1,40 @@
+name: Run tag migration
+
+on:
+  push:
+    branches:
+      - refactor/content-tags
+    paths:
+      - .github/workflows/run-tag-migration.yml
+      - scripts/fill-content-tags.mjs
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: refactor/content-tags
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.17
+
+      - name: Fill missing tags
+        run: node scripts/fill-content-tags.mjs
+
+      - name: Build Quartz
+        run: |
+          npm ci
+          npx quartz build
+
+      - name: Commit tag migration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content TAG_MIGRATION_REPORT.json
+          git commit -m "refactor(content): fill missing tags"
+          git push origin refactor/content-tags
