@@ -7,6 +7,7 @@ on:
     paths:
       - .github/workflows/run-link-migration-v2.yml
       - scripts/migrate-content-links.mjs
+      - content/**
 
 permissions:
   contents: write
@@ -38,10 +39,14 @@ jobs:
           npm ci
           npx quartz build
 
-      - name: Commit migration
+      - name: Commit migration report
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add content LINK_MIGRATION_REPORT.json
-          git commit -m "refactor(content): migrate internal links"
+          if git diff --cached --quiet; then
+            echo "No additional changes"
+            exit 0
+          fi
+          git commit -m "refactor(content): validate migrated links"
           git push origin refactor/content-links-v2
