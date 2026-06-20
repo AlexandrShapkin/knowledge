@@ -2,7 +2,9 @@
 title: pv
 draft: false
 tags:
-  -
+  - kubernetes
+  - manifest
+  - persistent-volume
 ---
 ```yaml
 apiVersion: v1

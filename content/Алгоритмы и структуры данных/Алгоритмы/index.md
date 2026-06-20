@@ -2,6 +2,7 @@
 title: Алгоритмы
 draft: false
 tags:
+  - algorithms
 ---
  
 ## LeetCode

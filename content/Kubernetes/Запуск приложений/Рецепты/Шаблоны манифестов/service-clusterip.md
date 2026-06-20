@@ -2,7 +2,10 @@
 title: service-clusterip
 draft: false
 tags:
-  -
+  - kubernetes
+  - manifest
+  - service
+  - clusterip
 ---
 ```yaml
 apiVersion: v1

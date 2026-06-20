@@ -2,7 +2,9 @@
 title: ingress
 draft: false
 tags:
-  -
+  - kubernetes
+  - manifest
+  - ingress
 ---
 ```yaml
 apiVersion: networking.k8s.io/v1

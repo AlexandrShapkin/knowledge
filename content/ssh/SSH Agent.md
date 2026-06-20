@@ -2,7 +2,9 @@
 title: SSH Agent
 draft: false
 tags:
-  -
+  - ssh
+  - authentication
+  - ssh-agent
 ---
 ## Назначение
 

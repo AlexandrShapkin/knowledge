@@ -2,7 +2,9 @@
 title: deployment
 draft: false
 tags:
-  -
+  - kubernetes
+  - manifest
+  - deployment
 ---
 ```yaml
 apiVersion: apps/v1

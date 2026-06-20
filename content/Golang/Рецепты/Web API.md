@@ -2,7 +2,9 @@
 title: Web API
 draft: false
 tags:
-  -
+  - go
+  - web
+  - api
 ---
 ```go
 package main

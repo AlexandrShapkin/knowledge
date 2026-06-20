@@ -2,7 +2,9 @@
 title: Go multistage Dockerfile template
 draft: false
 tags:
-  -
+  - docker
+  - go
+  - dockerfile
 ---
 
 

@@ -2,7 +2,8 @@
 title: Диагностика SSH
 draft: false
 tags:
-  -
+  - ssh
+  - troubleshooting
 ---
 ## Назначение
 
