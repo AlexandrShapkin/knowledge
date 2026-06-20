@@ -4,7 +4,7 @@ draft: false
 tags:
   - ssh
 ---
-## Генерация ключаq
+## Генерация ключа
 **Linux / macOS / Windows (через WSL или Git Bash):**
 ```bash
 ssh-keygen -t ed25519 -C "your_email@example.com"
@@ -39,7 +39,7 @@ ssh user@host
 Если всё корректно, подключение произойдёт без запроса пароля.
 
 ---
-## Настройка `~/.ssh/config` (удобство)
+## Настройка `~/.ssh/config`
 Для упрощения доступа:
 ```bash
 Host myserver
@@ -54,7 +54,7 @@ ssh myserver
 ```
 
 ---
-## Windows (варианты)
+## Windows
 
 ### Использовать **Windows Terminal / PowerShell с OpenSSH**
 Современные Windows 10/11 уже включают OpenSSH-клиент.
