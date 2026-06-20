@@ -1,0 +1,34 @@
+name: Run content atomicity audit
+
+on:
+  pull_request:
+    branches:
+      - v4
+    paths:
+      - .github/workflows/run-atomicity-audit.yml
+      - scripts/audit-content-atomicity.mjs
+      - content/**
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.17
+
+      - name: Build audit report
+        run: node scripts/audit-content-atomicity.mjs
+
+      - name: Upload audit snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: content-atomicity-audit
+          path: |
+            ATOMICITY_AUDIT.json
+            content/**/*.md
