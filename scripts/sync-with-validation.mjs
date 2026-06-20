@@ -26,12 +26,12 @@ export function main(argv = process.argv.slice(2)) {
   if (options.skipCheck) {
     console.warn("Проверка content/ пропущена по флагу --no-check")
   } else {
+    console.log("Проверка метаданных, ссылок, графа и вложений content/...")
     const npm = process.platform === "win32" ? "npm.cmd" : "npm"
-    console.log("Проверка структуры и ссылок content/...")
-    run(npm, ["run", "content:validate"])
+    run(npm, ["run", "content:links"])
   }
 
-  const script = path.join(path.dirname(fileURLToPath(import.meta.url)), "repository-sync.mjs")
+  const script = path.join(path.dirname(fileURLToPath(import.meta.url)), "repository-sync-core.mjs")
   run(process.execPath, [script, ...options.forwarded])
 }
 
