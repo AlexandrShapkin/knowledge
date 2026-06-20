@@ -6,10 +6,10 @@ on:
       - v4
     paths:
       - content/**
-      - quartz.config.ts
+      - templates/**
       - scripts/check-content-links.mjs
-      - scripts/ensure-content-indexes.mjs
-      - package.json
+      - scripts/repository-sync.mjs
+      - scripts/repository-sync-core.mjs
       - .github/workflows/validate-content-links.yml
 
 permissions:
@@ -29,10 +29,22 @@ jobs:
         run: npm ci
 
       - name: Validate directory indexes
-        run: npm run content:indexes:check
+        shell: bash
+        run: |
+          failed=0
+          while IFS= read -r directory; do
+            if [ ! -f "$directory/index.md" ]; then
+              echo "Missing index.md: $directory"
+              failed=1
+            fi
+          done < <(find content -type d \( -name '.*' -o -name '!*' \) -prune -o -type d -print)
+          exit "$failed"
 
-      - name: Validate content links
+      - name: Validate content contract
         run: npm run content:links
+
+      - name: Test synchronization
+        run: npm run sync:test
 
       - name: Build Quartz
         run: npx quartz build

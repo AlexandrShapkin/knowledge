@@ -30,9 +30,18 @@ jobs:
         run: npm ci
 
       - name: Validate directory indexes
-        run: npm run content:indexes:check
+        shell: bash
+        run: |
+          failed=0
+          while IFS= read -r directory; do
+            if [ ! -f "$directory/index.md" ]; then
+              echo "Missing index.md: $directory"
+              failed=1
+            fi
+          done < <(find content -type d \( -name '.*' -o -name '!*' \) -prune -o -type d -print)
+          exit "$failed"
 
-      - name: Validate content links
+      - name: Validate content contract
         run: npm run content:links
 
       - name: Build Quartz
