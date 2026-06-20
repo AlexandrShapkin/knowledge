@@ -1,0 +1,13 @@
+---
+title: Анализ ресурсов
+draft: false
+generated: true
+tags:
+  - linux
+  - анализ-ресурсов
+  - index
+---
+
+## Разделы
+
+- [top](top/index.md)

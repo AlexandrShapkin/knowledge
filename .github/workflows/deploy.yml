@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Validate directory indexes
+        run: npm run content:indexes:check
+
       - name: Validate content links
         run: npm run content:links
 
