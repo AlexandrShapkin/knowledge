@@ -5,4 +5,4 @@ tags:
   - git
 ---
 
-- [Генерация и настройка SSH-ключей для GitHub и GitLab](Генерация%20и%20настройка%20SSH-ключей%20для%20GitHub%20и%20GitLab.md)
+- [Добавление SSH-ключа в GitHub и GitLab](Добавление%20SSH-ключа%20в%20GitHub%20и%20GitLab.md)
