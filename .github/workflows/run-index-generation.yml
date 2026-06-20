@@ -1,0 +1,52 @@
+name: Run content index generation
+
+on:
+  push:
+    branches:
+      - feat/content-directory-indexes
+    paths:
+      - .github/workflows/run-index-generation.yml
+      - scripts/ensure-content-indexes.mjs
+      - package.json
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: feat/content-directory-indexes
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.17
+
+      - name: Generate missing indexes
+        run: npm run content:indexes -- --report INDEX_GENERATION_REPORT.json
+
+      - name: Validate generated indexes
+        run: npm run content:indexes:check
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate links
+        run: npm run content:links
+
+      - name: Build Quartz
+        run: npx quartz build
+
+      - name: Commit indexes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content INDEX_GENERATION_REPORT.json
+          if git diff --cached --quiet; then
+            echo "No index changes"
+            exit 0
+          fi
+          git commit -m "feat(content): add missing directory indexes"
+          git push origin feat/content-directory-indexes
