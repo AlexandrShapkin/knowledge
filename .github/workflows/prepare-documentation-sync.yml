@@ -1,0 +1,43 @@
+name: Prepare documentation and sync update
+
+on:
+  push:
+    branches:
+      - ai/documentation-and-sync-v2
+    paths:
+      - .github/workflows/prepare-documentation-sync.yml
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ai/documentation-and-sync-v2
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.17
+      - name: Restore dependencies and configure scripts
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs')
+          const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'))
+          packageJson.scripts.sync = 'node scripts/repository-sync.mjs'
+          packageJson.scripts['sync:test'] = 'node --test scripts/smart-sync.test.mjs scripts/repository-sync.test.mjs'
+          packageJson.dependencies['github-slugger'] = '^2.0.0'
+          packageJson.dependencies['is-absolute-url'] = '^5.0.0'
+          packageJson.dependencies['unist-util-visit'] = '^5.1.0'
+          fs.writeFileSync('package.json', `${JSON.stringify(packageJson, null, 2)}\n`)
+          NODE
+      - name: Run synchronization tests
+        run: npm run sync:test
+      - name: Commit package correction
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json
+          git commit -m "Finalize repository sync commands"
+          git push origin ai/documentation-and-sync-v2
