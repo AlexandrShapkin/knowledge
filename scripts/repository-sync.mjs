@@ -1,40 +1,82 @@
 import { spawnSync } from "node:child_process"
+import { existsSync, readdirSync } from "node:fs"
 import path from "node:path"
 import process from "node:process"
 import { fileURLToPath, pathToFileURL } from "node:url"
 
-export function parseSyncArgs(argv) {
-  return {
-    skipCheck: argv.includes("--no-check"),
-    forwarded: argv.filter((argument) => argument !== "--no-check"),
+export function parseArgs(argv, currentBranch) {
+  const options = {
+    mode: "owner",
+    pullRemote: "origin",
+    pullBranch: currentBranch,
+    pushRemote: "origin",
+    pushBranch: currentBranch,
+    message: null,
   }
+  for (let index = 0; index < argv.length; index += 1) {
+    const value = argv[index]
+    if (value === "--contributor") {
+      options.mode = "contributor"
+      options.pullRemote = "knowledge-upstream"
+      options.pullBranch = "v4"
+    } else if (value === "--pull-remote") options.pullRemote = argv[++index]
+    else if (value === "--pull-branch") options.pullBranch = argv[++index]
+    else if (value === "--push-remote") options.pushRemote = argv[++index]
+    else if (value === "--push-branch") options.pushBranch = argv[++index]
+    else if (value === "--message") options.message = argv[++index]
+    else throw new Error(`Unknown argument: ${value}`)
+  }
+  return options
 }
 
 function run(command, args) {
-  const result = spawnSync(command, args, {
-    cwd: process.cwd(),
-    encoding: "utf8",
-    stdio: "inherit",
-  })
+  const result = spawnSync(command, args, { cwd: process.cwd(), stdio: "inherit" })
   if (result.error) throw result.error
   if (result.status !== 0) process.exit(result.status ?? 1)
 }
 
-export function main(argv = process.argv.slice(2)) {
-  const options = parseSyncArgs(argv)
+function checkIndexes(directory) {
+  if (!existsSync(path.join(directory, "index.md"))) {
+    throw new Error(`Отсутствует обязательный index.md: ${path.relative(process.cwd(), directory)}`)
+  }
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    if (entry.isDirectory() && !entry.name.startsWith(".") && !entry.name.startsWith("!")) {
+      checkIndexes(path.join(directory, entry.name))
+    }
+  }
+}
 
-  if (options.skipCheck) {
+function corePath() {
+  const local = path.join(path.dirname(fileURLToPath(import.meta.url)), "repository-sync-core.mjs")
+  if (existsSync(local)) return local
+  const fallback = process.env.INIT_CWD
+    ? path.join(process.env.INIT_CWD, "scripts", "repository-sync-core.mjs")
+    : ""
+  if (fallback && existsSync(fallback)) return fallback
+  throw new Error("repository-sync-core.mjs not found")
+}
+
+export function main(argv = process.argv.slice(2)) {
+  const skipCheck = argv.includes("--no-check")
+  const forwarded = argv.filter((argument) => argument !== "--no-check")
+  const validator = path.resolve("scripts/check-content-links.mjs")
+  const content = path.resolve("content")
+
+  if (skipCheck) {
     console.warn("Проверка content/ пропущена по флагу --no-check")
-  } else {
-    console.log("Проверка метаданных, ссылок, графа и вложений content/...")
-    const npm = process.platform === "win32" ? "npm.cmd" : "npm"
-    run(npm, ["run", "content:links"])
+  } else if (existsSync(validator) && existsSync(content)) {
+    checkIndexes(content)
+    run(process.execPath, [validator])
   }
 
-  const script = path.join(path.dirname(fileURLToPath(import.meta.url)), "repository-sync-core.mjs")
-  run(process.execPath, [script, ...options.forwarded])
+  run(process.execPath, [corePath(), ...forwarded])
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
-  main()
+  try {
+    main()
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error))
+    process.exit(1)
+  }
 }
