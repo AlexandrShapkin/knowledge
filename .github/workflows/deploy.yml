@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Validate content links
+        run: npm run content:links
+
       - name: Build Quartz
         run: npx quartz build
 

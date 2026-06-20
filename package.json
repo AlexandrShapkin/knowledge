@@ -19,7 +19,8 @@
     "test": "tsx --test",
     "profile": "0x -D prof ./quartz/bootstrap-cli.mjs build --concurrency=1",
     "sync": "node scripts/repository-sync.mjs",
-    "sync:test": "node --test scripts/smart-sync.test.mjs scripts/repository-sync.test.mjs"
+    "sync:test": "node --test scripts/smart-sync.test.mjs scripts/repository-sync.test.mjs",
+    "content:links": "node scripts/check-content-links.mjs"
   },
   "engines": {
     "npm": ">=10.9.2",
