@@ -1,0 +1,48 @@
+name: Run relative link audit
+
+on:
+  push:
+    branches:
+      - fix/quartz-relative-links
+    paths:
+      - .github/workflows/run-relative-link-audit.yml
+      - quartz.config.ts
+      - scripts/check-content-links.mjs
+      - package.json
+      - content/**
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: fix/quartz-relative-links
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.17
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit content links
+        continue-on-error: true
+        run: node scripts/check-content-links.mjs --report LINK_CHECK_REPORT.json
+
+      - name: Build Quartz
+        run: npx quartz build
+
+      - name: Commit audit report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add LINK_CHECK_REPORT.json
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "chore(content): generate link audit report"
+          git push origin fix/quartz-relative-links
