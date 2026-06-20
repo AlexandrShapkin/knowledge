@@ -1,0 +1,243 @@
+{
+  "generatedAt": "2026-06-20T13:31:42.842Z",
+  "totals": {
+    "markdownFiles": 151,
+    "links": 310,
+    "isolatedNotes": 23,
+    "indexes": 11,
+    "indexesWithMissingDirectLinks": 6
+  },
+  "isolated": [
+    {
+      "path": "Алгоритмы и структуры данных/Алгоритмы/LeetCode/13. Roman to Integer.md",
+      "suggestedIndex": "Алгоритмы и структуры данных/Алгоритмы/index.md"
+    },
+    {
+      "path": "Заметки/Миграция с Docker Compose на k3s + ArgoCD.md",
+      "suggestedIndex": "index.md"
+    },
+    {
+      "path": "Сети/Протоколы/DNS.md",
+      "suggestedIndex": "index.md"
+    },
+    {
+      "path": "Сети/Протоколы/HTTP.md",
+      "suggestedIndex": "index.md"
+    },
+    {
+      "path": "Сети/Протоколы/Wireguard.md",
+      "suggestedIndex": "index.md"
+    },
+    {
+      "path": "Сети/TCP-IP/index.md",
+      "suggestedIndex": "index.md"
+    },
+    {
+      "path": "Формат заметок.md",
+      "suggestedIndex": "index.md"
+    },
+    {
+      "path": "Docker/Рецепты/Go multistage Dockerfile template.md",
+      "suggestedIndex": "index.md"
+    },
+    {
+      "path": "Git/Генерация и настройка SSH-ключей для GitHub и GitLab.md",
+      "suggestedIndex": "index.md"
+    },
+    {
+      "path": "Golang/Рецепты/Web API.md",
+      "suggestedIndex": "index.md"
+    },
+    {
+      "path": "Kubernetes/Запуск приложений/Рецепты/Шаблоны манифестов/deployment.md",
+      "suggestedIndex": "Kubernetes/Запуск приложений/index.md"
+    },
+    {
+      "path": "Kubernetes/Запуск приложений/Рецепты/Шаблоны манифестов/ingress.md",
+      "suggestedIndex": "Kubernetes/Запуск приложений/index.md"
+    },
+    {
+      "path": "Kubernetes/Запуск приложений/Рецепты/Шаблоны манифестов/pv.md",
+      "suggestedIndex": "Kubernetes/Запуск приложений/index.md"
+    },
+    {
+      "path": "Kubernetes/Запуск приложений/Рецепты/Шаблоны манифестов/pvc.md",
+      "suggestedIndex": "Kubernetes/Запуск приложений/index.md"
+    },
+    {
+      "path": "Kubernetes/Запуск приложений/Рецепты/Шаблоны манифестов/service-clusterip.md",
+      "suggestedIndex": "Kubernetes/Запуск приложений/index.md"
+    },
+    {
+      "path": "Kubernetes/Запуск приложений/Рецепты/Шаблоны манифестов/service-nodeport.md",
+      "suggestedIndex": "Kubernetes/Запуск приложений/index.md"
+    },
+    {
+      "path": "Kubernetes/Запуск приложений/index.md",
+      "suggestedIndex": "Kubernetes/index.md"
+    },
+    {
+      "path": "Kubernetes/index.md",
+      "suggestedIndex": "index.md"
+    },
+    {
+      "path": "Kubernetes/k3s/Руководство по быстрому запуску.md",
+      "suggestedIndex": "Kubernetes/k3s/index.md"
+    },
+    {
+      "path": "Kubernetes/k3s/index.md",
+      "suggestedIndex": "Kubernetes/index.md"
+    },
+    {
+      "path": "Linux/RHEL/SELinux/Преимущества использования SELinux.md",
+      "suggestedIndex": "Linux/RHEL/SELinux/index.md"
+    },
+    {
+      "path": "Linux/RHEL/SELinux/index.md",
+      "suggestedIndex": "index.md"
+    },
+    {
+      "path": "Linux/systemd/Логи.md",
+      "suggestedIndex": "index.md"
+    }
+  ],
+  "indexes": [
+    {
+      "path": "Алгоритмы и структуры данных/Алгоритмы/index.md",
+      "incoming": 1,
+      "outgoing": 1,
+      "directChildren": [
+        "Алгоритмы и структуры данных/Алгоритмы/Проверка строки на палиндром.md"
+      ],
+      "missingDirectLinks": [
+        "Алгоритмы и структуры данных/Алгоритмы/Проверка строки на палиндром.md"
+      ]
+    },
+    {
+      "path": "Алгоритмы и структуры данных/index.md",
+      "incoming": 0,
+      "outgoing": 1,
+      "directChildren": [
+        "Алгоритмы и структуры данных/Алгоритмы/index.md"
+      ],
+      "missingDirectLinks": []
+    },
+    {
+      "path": "Машинное обучение/index.md",
+      "incoming": 0,
+      "outgoing": 1,
+      "directChildren": [],
+      "missingDirectLinks": []
+    },
+    {
+      "path": "Сети/DNS/index.md",
+      "incoming": 0,
+      "outgoing": 1,
+      "directChildren": [
+        "Сети/DNS/Виды DNS-записей.md",
+        "Сети/DNS/Делегирование домена.md",
+        "Сети/DNS/A-запись.md",
+        "Сети/DNS/AAAA-запись.md",
+        "Сети/DNS/CNAME-запись.md",
+        "Сети/DNS/DNS-домен.md",
+        "Сети/DNS/MX-запись.md",
+        "Сети/DNS/NS-запись.md",
+        "Сети/DNS/PTR-запись.md",
+        "Сети/DNS/SOA-запись.md",
+        "Сети/DNS/SRV-запись.md",
+        "Сети/DNS/TXT-запись.md",
+        "Сети/DNS/WHOIS.md"
+      ],
+      "missingDirectLinks": [
+        "Сети/DNS/Виды DNS-записей.md",
+        "Сети/DNS/Делегирование домена.md",
+        "Сети/DNS/A-запись.md",
+        "Сети/DNS/AAAA-запись.md",
+        "Сети/DNS/CNAME-запись.md",
+        "Сети/DNS/MX-запись.md",
+        "Сети/DNS/NS-запись.md",
+        "Сети/DNS/PTR-запись.md",
+        "Сети/DNS/SOA-запись.md",
+        "Сети/DNS/SRV-запись.md",
+        "Сети/DNS/TXT-запись.md",
+        "Сети/DNS/WHOIS.md"
+      ]
+    },
+    {
+      "path": "Сети/TCP-IP/index.md",
+      "incoming": 0,
+      "outgoing": 0,
+      "directChildren": [],
+      "missingDirectLinks": []
+    },
+    {
+      "path": "index.md",
+      "incoming": 0,
+      "outgoing": 1,
+      "directChildren": [
+        "Алгоритмы и структуры данных/index.md",
+        "Машинное обучение/index.md",
+        "Формат заметок.md",
+        "Kubernetes/index.md"
+      ],
+      "missingDirectLinks": [
+        "Алгоритмы и структуры данных/index.md",
+        "Машинное обучение/index.md",
+        "Формат заметок.md",
+        "Kubernetes/index.md"
+      ]
+    },
+    {
+      "path": "Kubernetes/Запуск приложений/index.md",
+      "incoming": 0,
+      "outgoing": 0,
+      "directChildren": [],
+      "missingDirectLinks": []
+    },
+    {
+      "path": "Kubernetes/index.md",
+      "incoming": 0,
+      "outgoing": 0,
+      "directChildren": [
+        "Kubernetes/Запуск приложений/index.md",
+        "Kubernetes/k3s/index.md"
+      ],
+      "missingDirectLinks": [
+        "Kubernetes/Запуск приложений/index.md",
+        "Kubernetes/k3s/index.md"
+      ]
+    },
+    {
+      "path": "Kubernetes/k3s/index.md",
+      "incoming": 0,
+      "outgoing": 0,
+      "directChildren": [
+        "Kubernetes/k3s/Руководство по быстрому запуску.md"
+      ],
+      "missingDirectLinks": [
+        "Kubernetes/k3s/Руководство по быстрому запуску.md"
+      ]
+    },
+    {
+      "path": "Linux/RHEL/SELinux/index.md",
+      "incoming": 0,
+      "outgoing": 0,
+      "directChildren": [
+        "Linux/RHEL/SELinux/Преимущества использования SELinux.md"
+      ],
+      "missingDirectLinks": [
+        "Linux/RHEL/SELinux/Преимущества использования SELinux.md"
+      ]
+    },
+    {
+      "path": "ssh/SSH ключи/index.md",
+      "incoming": 0,
+      "outgoing": 5,
+      "directChildren": [
+        "ssh/SSH ключи/Генерация ED25519 ключа.md",
+        "ssh/SSH ключи/Добавление публичного ключа на сервер.md"
+      ],
+      "missingDirectLinks": []
+    }
+  ]
+}
