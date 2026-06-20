@@ -1,9 +1,9 @@
 name: Run content atomicity migration
 
 on:
-  push:
+  pull_request:
     branches:
-      - refactor/content-atomicity
+      - v4
     paths:
       - .github/workflows/run-atomicity-refactor.yml
       - scripts/apply-atomicity-refactor.mjs
