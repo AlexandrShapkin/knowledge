@@ -18,8 +18,8 @@
     "format": "npx prettier . --write",
     "test": "tsx --test",
     "profile": "0x -D prof ./quartz/bootstrap-cli.mjs build --concurrency=1",
-    "sync": "node scripts/smart-sync.mjs",
-    "sync:test": "node --test scripts/smart-sync.test.mjs"
+    "sync": "node scripts/repository-sync.mjs",
+    "sync:test": "node --test scripts/smart-sync.test.mjs scripts/repository-sync.test.mjs"
   },
   "engines": {
     "npm": ">=10.9.2",
