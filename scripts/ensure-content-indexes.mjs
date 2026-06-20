@@ -1,3 +1,4 @@
+// Directories beginning with ! are reserved for non-note resources.
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
 
