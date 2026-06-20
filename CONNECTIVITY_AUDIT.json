@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-20T13:34:14.695Z",
+  "generatedAt": "2026-06-20T13:37:18.180Z",
   "totals": {
     "markdownFiles": 163,
-    "links": 396,
+    "links": 403,
     "isolatedNotes": 0,
     "indexes": 23,
-    "indexesWithMissingDirectLinks": 3
+    "indexesWithMissingDirectLinks": 0
   },
   "isolated": [],
   "indexes": [
@@ -46,7 +46,7 @@
     {
       "path": "Сети/Протоколы/index.md",
       "incoming": 1,
-      "outgoing": 10,
+      "outgoing": 13,
       "directChildren": [
         "Сети/Протоколы/ARP.md",
         "Сети/Протоколы/DHCP.md",
@@ -62,11 +62,7 @@
         "Сети/Протоколы/VLAN.md",
         "Сети/Протоколы/Wireguard.md"
       ],
-      "missingDirectLinks": [
-        "Сети/Протоколы/DHCP.md",
-        "Сети/Протоколы/UDP.md",
-        "Сети/Протоколы/VLAN.md"
-      ]
+      "missingDirectLinks": []
     },
     {
       "path": "Сети/DNS/index.md",
@@ -216,7 +212,7 @@
     {
       "path": "Linux/index.md",
       "incoming": 1,
-      "outgoing": 6,
+      "outgoing": 9,
       "directChildren": [
         "Linux/Процессы/index.md",
         "Linux/Работа с inode.md",
@@ -224,11 +220,7 @@
         "Linux/inode.md",
         "Linux/systemd/index.md"
       ],
-      "missingDirectLinks": [
-        "Linux/Работа с inode.md",
-        "Linux/Файловый дескриптор.md",
-        "Linux/inode.md"
-      ]
+      "missingDirectLinks": []
     },
     {
       "path": "Linux/RHEL/SELinux/index.md",
@@ -242,15 +234,13 @@
     {
       "path": "Linux/systemd/index.md",
       "incoming": 1,
-      "outgoing": 2,
+      "outgoing": 3,
       "directChildren": [
         "Linux/systemd/Зависимости.md",
         "Linux/systemd/Логи.md",
         "Linux/systemd/unit-файлы.md"
       ],
-      "missingDirectLinks": [
-        "Linux/systemd/unit-файлы.md"
-      ]
+      "missingDirectLinks": []
     },
     {
       "path": "ssh/index.md",
