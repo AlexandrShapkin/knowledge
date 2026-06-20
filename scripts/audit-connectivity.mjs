@@ -129,3 +129,5 @@ const report = {
 
 writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`)
 console.log(JSON.stringify(report.totals, null, 2))
+
+// This file is temporary and is touched only to trigger a final audit run.
