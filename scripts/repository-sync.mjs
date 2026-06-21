@@ -68,8 +68,7 @@ export function main(argv = process.argv.slice(2)) {
   if (options.skipCheck) {
     console.warn("Проверка content/ пропущена по флагу --no-check")
   } else if (existsSync(validator) && existsSync(packageFile)) {
-    const npm = process.platform === "win32" ? "npm.cmd" : "npm"
-    run(npm, ["run", "content:validate"])
+    run(process.execPath, ["--run", "content:validate"])
   }
 
   run(process.execPath, [corePath(), ...options.forwarded])
