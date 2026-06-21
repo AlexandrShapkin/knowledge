@@ -1,3 +1,4 @@
+// Directories beginning with ! are reserved for non-note resources.
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
 
@@ -22,7 +23,7 @@ function listDirectories(root) {
   const result = [root]
 
   for (const entry of readdirSync(root, { withFileTypes: true })) {
-    if (!entry.isDirectory() || entry.name.startsWith(".")) continue
+    if (!entry.isDirectory() || entry.name.startsWith(".") || entry.name.startsWith("!")) continue
     result.push(...listDirectories(path.join(root, entry.name)))
   }
 
@@ -139,7 +140,7 @@ function nearestInheritedTags(directory) {
 
 function buildIndex(directory) {
   const entries = readdirSync(directory, { withFileTypes: true })
-    .filter((entry) => !entry.name.startsWith("."))
+    .filter((entry) => !entry.name.startsWith(".") && !entry.name.startsWith("!"))
     .sort((left, right) => {
       if (left.isDirectory() !== right.isDirectory()) return left.isDirectory() ? -1 : 1
       return left.name.localeCompare(right.name, "ru")

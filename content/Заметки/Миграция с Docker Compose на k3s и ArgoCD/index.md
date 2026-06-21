@@ -9,7 +9,7 @@ tags:
   - gitops
   - index
 ---
-![Общая схема](Схема%20работы%20GitOps.png)
+![Общая схема](!assets/Схема%20работы%20GitOps.png)
 
 Личные заметки о переходе домашней инфраструктуры от Docker Compose к Kubernetes на базе k3s и GitOps-подходу через ArgoCD.
 ## Материалы

@@ -6,10 +6,11 @@ on:
       - v4
     paths:
       - content/**
-      - quartz.config.ts
-      - scripts/check-content-links.mjs
-      - scripts/ensure-content-indexes.mjs
+      - templates/**
+      - CONTENT_RULES.md
       - package.json
+      - package-lock.json
+      - scripts/**
       - .github/workflows/validate-content-links.yml
 
 permissions:
@@ -29,10 +30,30 @@ jobs:
         run: npm ci
 
       - name: Validate directory indexes
+        id: indexes
+        continue-on-error: true
         run: npm run content:indexes:check
 
-      - name: Validate content links
-        run: npm run content:links
+      - name: Validate links, metadata and assets
+        id: content
+        continue-on-error: true
+        run: node scripts/check-content-links.mjs --report content-validation-report.json
+
+      - name: Upload validation report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: content-validation-report
+          path: content-validation-report.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Fail on validation errors
+        if: steps.indexes.outcome == 'failure' || steps.content.outcome == 'failure'
+        run: exit 1
+
+      - name: Test synchronization
+        run: npm run sync:test
 
       - name: Build Quartz
         run: npx quartz build

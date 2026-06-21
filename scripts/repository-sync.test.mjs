@@ -5,10 +5,11 @@ import path from "node:path"
 import { spawnSync } from "node:child_process"
 import test from "node:test"
 import { fileURLToPath } from "node:url"
-import { parseArgs } from "./repository-sync.mjs"
+import { parseArgs, parseSyncArgs } from "./repository-sync.mjs"
 
 const scriptsDir = path.dirname(fileURLToPath(import.meta.url))
 const syncScript = path.join(scriptsDir, "repository-sync.mjs")
+const syncCoreScript = path.join(scriptsDir, "repository-sync-core.mjs")
 const mergeScript = path.join(scriptsDir, "smart-sync.mjs")
 
 function run(command, args, cwd, allowFailure = false) {
@@ -32,6 +33,7 @@ function installScripts(cwd) {
   const target = path.join(cwd, "scripts")
   mkdirSync(target, { recursive: true })
   copyFileSync(syncScript, path.join(target, "repository-sync.mjs"))
+  copyFileSync(syncCoreScript, path.join(target, "repository-sync-core.mjs"))
   copyFileSync(mergeScript, path.join(target, "smart-sync.mjs"))
 }
 
@@ -73,6 +75,13 @@ test("contributor mode pulls v4 from knowledge-upstream and pushes the current b
     pushRemote: "origin",
     pushBranch: "docs/update",
     message: null,
+  })
+})
+
+test("--no-check is removed before synchronization core arguments are parsed", () => {
+  assert.deepEqual(parseSyncArgs(["--contributor", "--no-check", "--message", "docs: update"]), {
+    skipCheck: true,
+    forwarded: ["--contributor", "--message", "docs: update"],
   })
 })
 

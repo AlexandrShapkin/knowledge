@@ -10,5 +10,5 @@ tags:
 
 ## Заметки
 
-- [OSI](OSI.md)
-- [TCP/IP](TCP-IP.md)
+- [Модель OSI](OSI.md)
+- [Модель TCP/IP](TCP-IP.md)

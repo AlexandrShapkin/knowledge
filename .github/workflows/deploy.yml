@@ -7,6 +7,9 @@ on:
     paths-ignore:
       - README.md
       - CONTRIBUTING.md
+      - CONTENT_RULES.md
+      - SMART_SYNC.md
+      - AGENTS.md
       - CODE_OF_CONDUCT.md
       - LICENSE.txt
       - docs/**
@@ -29,11 +32,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Validate directory indexes
-        run: npm run content:indexes:check
-
-      - name: Validate content links
-        run: npm run content:links
+      - name: Validate content contract
+        run: npm run content:validate
 
       - name: Build Quartz
         run: npx quartz build

@@ -22,7 +22,8 @@
     "sync:test": "node --test scripts/smart-sync.test.mjs scripts/repository-sync.test.mjs",
     "content:links": "node scripts/check-content-links.mjs",
     "content:indexes": "node scripts/ensure-content-indexes.mjs",
-    "content:indexes:check": "node scripts/ensure-content-indexes.mjs --check"
+    "content:indexes:check": "node scripts/ensure-content-indexes.mjs --check",
+    "content:validate": "npm run content:indexes:check && npm run content:links"
   },
   "engines": {
     "npm": ">=10.9.2",
