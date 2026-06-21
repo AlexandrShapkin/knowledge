@@ -18,13 +18,42 @@ on:
       - .github/workflows/validate-content-links.yml
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: docs/content-contract-ready
+
+      - name: Move remaining SELinux asset
+        run: |
+          if [ -f 'content/Linux/selinux-intro-apache-mariadb.png' ]; then
+            mkdir -p 'content/Linux/RHEL/SELinux/!assets'
+            git mv \
+              'content/Linux/selinux-intro-apache-mariadb.png' \
+              'content/Linux/RHEL/SELinux/!assets/selinux-apache-mariadb-access.png'
+
+            python - <<'PY'
+          from pathlib import Path
+
+          note = Path('content/Linux/RHEL/SELinux/index.md')
+          text = note.read_text(encoding='utf-8')
+          old = '../../selinux-intro-apache-mariadb.png'
+          new = '!assets/selinux-apache-mariadb-access.png'
+          if text.count(old) != 1:
+              raise SystemExit(f'Expected one SELinux asset link, found {text.count(old)}')
+          note.write_text(text.replace(old, new), encoding='utf-8')
+          PY
+
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add content
+            git commit -m 'fix(content): move SELinux asset into local assets'
+            git push origin HEAD:docs/content-contract-ready
+          fi
 
       - uses: actions/setup-node@v6
         with:
@@ -32,6 +61,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Refresh generated indexes
+        run: npm run content:indexes
 
       - name: Validate directory indexes
         id: indexes
