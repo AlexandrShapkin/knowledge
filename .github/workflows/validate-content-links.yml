@@ -1,0 +1,39 @@
+name: Validate content
+
+on:
+  pull_request:
+    branches:
+      - v4
+    paths:
+      - content/**
+      - templates/**
+      - CONTENT_RULES.md
+      - package.json
+      - package-lock.json
+      - scripts/**
+      - .github/workflows/validate-content-links.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.17
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate content
+        run: npm run content:validate
+
+      - name: Test synchronization
+        run: npm run sync:test
+
+      - name: Build Quartz
+        run: npx quartz build
