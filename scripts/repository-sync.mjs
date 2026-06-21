@@ -31,6 +31,13 @@ export function parseArgs(argv, currentBranch) {
   return options
 }
 
+export function parseSyncArgs(argv) {
+  return {
+    skipCheck: argv.includes("--no-check"),
+    forwarded: argv.filter((argument) => argument !== "--no-check"),
+  }
+}
+
 function run(command, args) {
   const result = spawnSync(command, args, {
     cwd: process.cwd(),
@@ -54,19 +61,18 @@ function corePath() {
 }
 
 export function main(argv = process.argv.slice(2)) {
-  const skipCheck = argv.includes("--no-check")
-  const forwarded = argv.filter((argument) => argument !== "--no-check")
+  const options = parseSyncArgs(argv)
   const validator = path.resolve("scripts/check-content-links.mjs")
   const packageFile = path.resolve("package.json")
 
-  if (skipCheck) {
+  if (options.skipCheck) {
     console.warn("Проверка content/ пропущена по флагу --no-check")
   } else if (existsSync(validator) && existsSync(packageFile)) {
     const npm = process.platform === "win32" ? "npm.cmd" : "npm"
     run(npm, ["run", "content:validate"])
   }
 
-  run(process.execPath, [corePath(), ...forwarded])
+  run(process.execPath, [corePath(), ...options.forwarded])
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
