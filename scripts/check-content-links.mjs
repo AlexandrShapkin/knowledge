@@ -100,6 +100,17 @@ function validateMetadata(file, source) {
   }
 }
 
+function validateWikiLinks(file, tree) {
+  visit(tree, "text", (node) => {
+    const value = String(node.value ?? "")
+    for (const match of value.matchAll(/!?\[\[[^\]]+\]\]/g)) {
+      const precedingLines = value.slice(0, match.index).split("\n").length - 1
+      const line = (node.position?.start?.line ?? 1) + precedingLines
+      add(file, line, "wiki-link", match[0], "Используйте Markdown-ссылку")
+    }
+  })
+}
+
 function validateLink(file, node, image = false) {
   const target = String(node.url ?? "").trim()
   const line = node.position?.start?.line ?? null
@@ -145,10 +156,6 @@ for (const file of markdown) {
   const source = readFileSync(file, "utf8")
   validateMetadata(file, source)
 
-  for (const match of source.matchAll(/!?\[\[[^\]]+\]\]/g)) {
-    add(file, source.slice(0, match.index).split("\n").length, "wiki-link", match[0], "Используйте Markdown-ссылку")
-  }
-
   let tree
   try {
     tree = parser.parse(source)
@@ -156,6 +163,8 @@ for (const file of markdown) {
     add(file, null, "markdown-parse-error", null, error instanceof Error ? error.message : String(error))
     continue
   }
+
+  validateWikiLinks(file, tree)
   visit(tree, "link", (node) => validateLink(file, node))
   visit(tree, "image", (node) => validateLink(file, node, true))
   visit(tree, "definition", (node) => validateLink(file, node))
