@@ -19,14 +19,38 @@ function relativeToRepository(value) {
   return toPosix(path.relative(repositoryRoot, value))
 }
 
-function listDirectories(root) {
+function ordinaryEntries(directory) {
+  return readdirSync(directory, { withFileTypes: true }).filter(
+    (entry) => !entry.name.startsWith(".") && !entry.name.startsWith("!"),
+  )
+}
+
+function listOrdinaryDirectories(root) {
   const result = [root]
 
-  for (const entry of readdirSync(root, { withFileTypes: true })) {
-    if (!entry.isDirectory() || entry.name.startsWith(".") || entry.name.startsWith("!")) continue
-    result.push(...listDirectories(path.join(root, entry.name)))
+  for (const entry of ordinaryEntries(root)) {
+    if (!entry.isDirectory()) continue
+    result.push(...listOrdinaryDirectories(path.join(root, entry.name)))
   }
 
+  return result
+}
+
+const contentDirectoryCache = new Map()
+
+function hasNoteContent(directory) {
+  if (contentDirectoryCache.has(directory)) return contentDirectoryCache.get(directory)
+
+  const entries = ordinaryEntries(directory)
+  const hasMarkdown = entries.some(
+    (entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".md"),
+  )
+  const hasNonEmptyChild = entries.some(
+    (entry) => entry.isDirectory() && hasNoteContent(path.join(directory, entry.name)),
+  )
+  const result = hasMarkdown || hasNonEmptyChild
+
+  contentDirectoryCache.set(directory, result)
   return result
 }
 
@@ -139,14 +163,14 @@ function nearestInheritedTags(directory) {
 }
 
 function buildIndex(directory) {
-  const entries = readdirSync(directory, { withFileTypes: true })
-    .filter((entry) => !entry.name.startsWith(".") && !entry.name.startsWith("!"))
-    .sort((left, right) => {
-      if (left.isDirectory() !== right.isDirectory()) return left.isDirectory() ? -1 : 1
-      return left.name.localeCompare(right.name, "ru")
-    })
+  const entries = ordinaryEntries(directory).sort((left, right) => {
+    if (left.isDirectory() !== right.isDirectory()) return left.isDirectory() ? -1 : 1
+    return left.name.localeCompare(right.name, "ru")
+  })
 
-  const childDirectories = entries.filter((entry) => entry.isDirectory())
+  const childDirectories = entries.filter(
+    (entry) => entry.isDirectory() && hasNoteContent(path.join(directory, entry.name)),
+  )
   const childNotes = entries.filter(
     (entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".md") && entry.name !== "index.md",
   )
@@ -193,15 +217,22 @@ function buildIndex(directory) {
   return { indexFile, content: `${lines.join("\n").replace(/\n+$/, "")}\n` }
 }
 
-const directories = listDirectories(contentRoot).sort((left, right) => {
-  const depthDifference = right.split(path.sep).length - left.split(path.sep).length
-  return depthDifference || left.localeCompare(right, "ru")
-})
+const allDirectories = listOrdinaryDirectories(contentRoot)
+const directories = allDirectories
+  .filter((directory) => directory === contentRoot || hasNoteContent(directory))
+  .sort((left, right) => {
+    const depthDifference = right.split(path.sep).length - left.split(path.sep).length
+    return depthDifference || left.localeCompare(right, "ru")
+  })
+const ignoredEmptyDirectories = allDirectories.filter(
+  (directory) => directory !== contentRoot && !hasNoteContent(directory),
+)
 
 const report = {
   generatedAt: new Date().toISOString(),
   mode: checkOnly ? "check" : "write",
   directories: directories.length,
+  ignoredEmptyDirectories: ignoredEmptyDirectories.map(relativeToRepository),
   existingManualIndexes: 0,
   createdIndexes: [],
   updatedGeneratedIndexes: [],
@@ -240,7 +271,8 @@ for (const directory of directories) {
 
 if (reportPath) writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`)
 
-console.log(`Каталогов: ${report.directories}`)
+console.log(`Каталогов-разделов: ${report.directories}`)
+console.log(`Пропущено пустых каталогов: ${report.ignoredEmptyDirectories.length}`)
 console.log(`Ручных index.md: ${report.existingManualIndexes}`)
 console.log(`Создано index.md: ${report.createdIndexes.length}`)
 console.log(`Обновлено генерируемых index.md: ${report.updatedGeneratedIndexes.length}`)
