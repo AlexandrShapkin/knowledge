@@ -9,6 +9,7 @@ import { parseArgs } from "./repository-sync.mjs"
 
 const scriptsDir = path.dirname(fileURLToPath(import.meta.url))
 const syncScript = path.join(scriptsDir, "repository-sync.mjs")
+const syncCoreScript = path.join(scriptsDir, "repository-sync-core.mjs")
 const mergeScript = path.join(scriptsDir, "smart-sync.mjs")
 
 function run(command, args, cwd, allowFailure = false) {
@@ -32,6 +33,7 @@ function installScripts(cwd) {
   const target = path.join(cwd, "scripts")
   mkdirSync(target, { recursive: true })
   copyFileSync(syncScript, path.join(target, "repository-sync.mjs"))
+  copyFileSync(syncCoreScript, path.join(target, "repository-sync-core.mjs"))
   copyFileSync(mergeScript, path.join(target, "smart-sync.mjs"))
 }
 
