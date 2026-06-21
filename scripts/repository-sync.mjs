@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process"
-import { existsSync, readdirSync } from "node:fs"
+import { existsSync } from "node:fs"
 import path from "node:path"
 import process from "node:process"
 import { fileURLToPath, pathToFileURL } from "node:url"
@@ -13,6 +13,7 @@ export function parseArgs(argv, currentBranch) {
     pushBranch: currentBranch,
     message: null,
   }
+
   for (let index = 0; index < argv.length; index += 1) {
     const value = argv[index]
     if (value === "--contributor") {
@@ -26,33 +27,29 @@ export function parseArgs(argv, currentBranch) {
     else if (value === "--message") options.message = argv[++index]
     else throw new Error(`Unknown argument: ${value}`)
   }
+
   return options
 }
 
 function run(command, args) {
-  const result = spawnSync(command, args, { cwd: process.cwd(), stdio: "inherit" })
+  const result = spawnSync(command, args, {
+    cwd: process.cwd(),
+    encoding: "utf8",
+    stdio: "inherit",
+  })
   if (result.error) throw result.error
   if (result.status !== 0) process.exit(result.status ?? 1)
-}
-
-function checkIndexes(directory) {
-  if (!existsSync(path.join(directory, "index.md"))) {
-    throw new Error(`Отсутствует обязательный index.md: ${path.relative(process.cwd(), directory)}`)
-  }
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    if (entry.isDirectory() && !entry.name.startsWith(".") && !entry.name.startsWith("!")) {
-      checkIndexes(path.join(directory, entry.name))
-    }
-  }
 }
 
 function corePath() {
   const local = path.join(path.dirname(fileURLToPath(import.meta.url)), "repository-sync-core.mjs")
   if (existsSync(local)) return local
+
   const fallback = process.env.INIT_CWD
     ? path.join(process.env.INIT_CWD, "scripts", "repository-sync-core.mjs")
     : ""
   if (fallback && existsSync(fallback)) return fallback
+
   throw new Error("repository-sync-core.mjs not found")
 }
 
@@ -60,13 +57,13 @@ export function main(argv = process.argv.slice(2)) {
   const skipCheck = argv.includes("--no-check")
   const forwarded = argv.filter((argument) => argument !== "--no-check")
   const validator = path.resolve("scripts/check-content-links.mjs")
-  const content = path.resolve("content")
+  const packageFile = path.resolve("package.json")
 
   if (skipCheck) {
     console.warn("Проверка content/ пропущена по флагу --no-check")
-  } else if (existsSync(validator) && existsSync(content)) {
-    checkIndexes(content)
-    run(process.execPath, [validator])
+  } else if (existsSync(validator) && existsSync(packageFile)) {
+    const npm = process.platform === "win32" ? "npm.cmd" : "npm"
+    run(npm, ["run", "content:validate"])
   }
 
   run(process.execPath, [corePath(), ...forwarded])
