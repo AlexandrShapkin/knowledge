@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Test directory index rules
+        run: node --test scripts/ensure-content-indexes.test.mjs
+
       - name: Validate directory indexes
         id: indexes
         continue-on-error: true
