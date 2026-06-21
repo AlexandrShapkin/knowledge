@@ -33,8 +33,28 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Validate content contract
-        run: npm run content:validate
+      - name: Validate directory indexes
+        id: indexes
+        continue-on-error: true
+        run: npm run content:indexes:check
+
+      - name: Validate links, metadata and assets
+        id: content
+        continue-on-error: true
+        run: node scripts/check-content-links.mjs --report content-validation-report.json
+
+      - name: Upload validation report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: content-validation-report
+          path: content-validation-report.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Fail on validation errors
+        if: steps.indexes.outcome == 'failure' || steps.content.outcome == 'failure'
+        run: exit 1
 
       - name: Test synchronization
         run: npm run sync:test
