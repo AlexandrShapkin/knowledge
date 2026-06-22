@@ -1,15 +1,32 @@
-// Directories beginning with ! are reserved for non-note resources.
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
+import {
+  isServicePath,
+  listContentDirectories,
+  listContentFiles,
+  loadContentPolicy,
+} from "./content-policy.mjs"
 
 const repositoryRoot = process.cwd()
-const contentRoot = path.resolve(repositoryRoot, "content")
+const policy = loadContentPolicy(repositoryRoot)
+const contentRoot = policy.contentRoot
 const checkOnly = process.argv.includes("--check")
 const reportArgumentIndex = process.argv.indexOf("--report")
 const reportPath =
   reportArgumentIndex >= 0 && process.argv[reportArgumentIndex + 1]
     ? path.resolve(repositoryRoot, process.argv[reportArgumentIndex + 1])
     : null
+
+const publishedDirectories = new Set(
+  listContentDirectories(policy)
+    .map((entry) => path.resolve(entry))
+    .filter((entry) => !isServicePath(policy, entry)),
+)
+const publishedFiles = new Set(
+  listContentFiles(policy)
+    .map((entry) => path.resolve(entry))
+    .filter((entry) => !isServicePath(policy, entry)),
+)
 
 function toPosix(value) {
   return value.split(path.sep).join("/")
@@ -20,20 +37,11 @@ function relativeToRepository(value) {
 }
 
 function ordinaryEntries(directory) {
-  return readdirSync(directory, { withFileTypes: true }).filter(
-    (entry) => !entry.name.startsWith(".") && !entry.name.startsWith("!"),
-  )
-}
-
-function listOrdinaryDirectories(root) {
-  const result = [root]
-
-  for (const entry of ordinaryEntries(root)) {
-    if (!entry.isDirectory()) continue
-    result.push(...listOrdinaryDirectories(path.join(root, entry.name)))
-  }
-
-  return result
+  return readdirSync(directory, { withFileTypes: true }).filter((entry) => {
+    if (entry.name.startsWith(".") || entry.name.startsWith("!")) return false
+    const target = path.resolve(directory, entry.name)
+    return entry.isDirectory() ? publishedDirectories.has(target) : publishedFiles.has(target)
+  })
 }
 
 const contentDirectoryCache = new Map()
@@ -43,7 +51,7 @@ function hasNoteContent(directory) {
 
   const entries = ordinaryEntries(directory)
   const hasMarkdown = entries.some(
-    (entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".md"),
+    (entry) => entry.isFile() && [".md", ".mdx"].includes(path.extname(entry.name).toLowerCase()),
   )
   const hasNonEmptyChild = entries.some(
     (entry) => entry.isDirectory() && hasNoteContent(path.join(directory, entry.name)),
@@ -172,7 +180,10 @@ function buildIndex(directory) {
     (entry) => entry.isDirectory() && hasNoteContent(path.join(directory, entry.name)),
   )
   const childNotes = entries.filter(
-    (entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".md") && entry.name !== "index.md",
+    (entry) =>
+      entry.isFile() &&
+      [".md", ".mdx"].includes(path.extname(entry.name).toLowerCase()) &&
+      entry.name.toLowerCase() !== "index.md",
   )
 
   const indexFile = path.join(directory, "index.md")
@@ -217,7 +228,9 @@ function buildIndex(directory) {
   return { indexFile, content: `${lines.join("\n").replace(/\n+$/, "")}\n` }
 }
 
-const allDirectories = listOrdinaryDirectories(contentRoot)
+const allDirectories = [...publishedDirectories]
+  .filter((directory) => directory === contentRoot || !isServicePath(policy, directory))
+  .sort((left, right) => left.localeCompare(right, "ru"))
 const directories = allDirectories
   .filter((directory) => directory === contentRoot || hasNoteContent(directory))
   .sort((left, right) => {
@@ -244,9 +257,8 @@ for (const directory of directories) {
   const expected = buildIndex(directory)
 
   if (!existsSync(expected.indexFile)) {
-    if (checkOnly) {
-      report.missingIndexes.push(relativeToRepository(expected.indexFile))
-    } else {
+    if (checkOnly) report.missingIndexes.push(relativeToRepository(expected.indexFile))
+    else {
       writeFileSync(expected.indexFile, expected.content)
       report.createdIndexes.push(relativeToRepository(expected.indexFile))
     }
@@ -261,9 +273,8 @@ for (const directory of directories) {
   const current = readFileSync(expected.indexFile, "utf8").replace(/\r\n/g, "\n")
   if (current === expected.content) continue
 
-  if (checkOnly) {
-    report.outdatedGeneratedIndexes.push(relativeToRepository(expected.indexFile))
-  } else {
+  if (checkOnly) report.outdatedGeneratedIndexes.push(relativeToRepository(expected.indexFile))
+  else {
     writeFileSync(expected.indexFile, expected.content)
     report.updatedGeneratedIndexes.push(relativeToRepository(expected.indexFile))
   }
