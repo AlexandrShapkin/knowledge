@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - migration/quartz5
-    paths:
-      - .github/workflows/quartz5-migration.yml
   workflow_dispatch:
 
 permissions:
