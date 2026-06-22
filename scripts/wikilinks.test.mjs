@@ -29,6 +29,8 @@ function fixture() {
     ["configuration:", "  ignorePatterns: []", "plugins: []", ""].join("\n"),
   )
   writeFileSync(path.join(section, "Target.md"), markdown("Target", "Target body."))
+  writeFileSync(path.join(section, "9. Palindrome Number.md"), markdown("9. Palindrome Number", "Body."))
+  writeFileSync(path.join(section, "RED S.O.S.md"), markdown("RED S.O.S", "Body."))
   writeFileSync(path.join(assets, "Network diagram.png"), "image")
   return { root, section, assets }
 }
@@ -44,16 +46,24 @@ test("parses wikilinks, aliases and embeds", () => {
   )
 })
 
-test("resolves relative wikilinks case-insensitively", () => {
+test("resolves relative wikilinks case-insensitively and preserves dots in page names", () => {
   const { root, section, assets } = fixture()
   try {
     const policy = loadContentPolicy(root)
     const source = path.join(section, "Source.md")
     writeFileSync(source, markdown("Source", "Source body."))
-    const files = [source, path.join(section, "Target.md"), path.join(assets, "Network diagram.png")]
+    const files = [
+      source,
+      path.join(section, "Target.md"),
+      path.join(section, "9. Palindrome Number.md"),
+      path.join(section, "RED S.O.S.md"),
+      path.join(assets, "Network diagram.png"),
+    ]
     const index = createPublishedIndex(policy, files, [policy.contentRoot, section, assets])
 
     assert.equal(resolveRelativeWikilink(policy, index, source, "target").kind, "page")
+    assert.equal(resolveRelativeWikilink(policy, index, source, "9. Palindrome Number").kind, "page")
+    assert.equal(resolveRelativeWikilink(policy, index, source, "RED S.O.S").kind, "page")
     assert.equal(
       resolveRelativeWikilink(policy, index, source, "!assets/network diagram.png").kind,
       "asset",
