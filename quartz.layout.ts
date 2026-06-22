@@ -6,7 +6,9 @@ import { FileTrieNode } from "./quartz/util/fileTrie"
 export const sharedPageComponents: SharedLayout = {
   head: Component.Head(),
   header: [],
-  afterBody: [],
+  afterBody: [
+    Component.Backlinks(),
+  ],
   footer: Component.Footer({
     links: {
       GitHub: "https://github.com/AlexandrShapkin/knowledge-base",
@@ -49,8 +51,12 @@ export const defaultContentPageLayout: PageLayout = {
   ],
   right: [
     Component.Graph(),
+    Component.RecentNotes({
+      title: "Последние изменения",
+      limit: 5,
+      showTags: true,
+    }),
     Component.DesktopOnly(Component.TableOfContents()),
-    Component.Backlinks(),
   ],
 }
 
@@ -78,7 +84,11 @@ export const defaultListPageLayout: PageLayout = {
   ],
   right: [
     Component.Graph(),
+    Component.RecentNotes({
+      title: "Последние изменения",
+      limit: 5,
+      showTags: true,
+    }),
     Component.DesktopOnly(Component.TableOfContents()),
-    Component.Backlinks(),
   ],
 }

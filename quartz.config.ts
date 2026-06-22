@@ -17,7 +17,7 @@ const config: QuartzConfig = {
     },
     locale: "ru-RU",
     baseUrl: "knowledge.alexandrshapkin.ru",
-    ignorePatterns: ["private", "templates", ".obsidian", "**/!*", "!*"],
+    ignorePatterns: ["private", "templates", ".obsidian", "!Meta"],
     defaultDateType: "modified",
     theme: {
       fontOrigin: "googleFonts",
