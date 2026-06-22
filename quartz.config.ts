@@ -13,8 +13,7 @@ const config: QuartzConfig = {
     enableSPA: true,
     enablePopovers: true,
     analytics: {
-      provider: "goatcounter",
-      websiteId: "knowledge",
+      provider: "plausible",
     },
     locale: "ru-RU",
     baseUrl: "knowledge.alexandrshapkin.ru",
