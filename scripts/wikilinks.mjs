@@ -59,6 +59,11 @@ function lookup(map, relative) {
   return map.get(relative.normalize("NFKC").toLowerCase()) ?? null
 }
 
+function classifyExactFile(file, relative) {
+  const extension = path.posix.extname(relative).toLowerCase()
+  return { kind: pageExtensions.has(extension) ? "page" : "asset", file, relative }
+}
+
 export function resolveRelativeWikilink(policy, index, sourceFile, target) {
   if (!target) return { kind: "page", file: sourceFile, relative: "" }
   if (/^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(target)) return { kind: "external" }
@@ -70,12 +75,8 @@ export function resolveRelativeWikilink(policy, index, sourceFile, target) {
   const normalized = path.posix.normalize(path.posix.join(sourceDirectory, decodedTarget(target)))
   if (normalized === ".." || normalized.startsWith("../")) return { kind: "outside" }
 
-  const extension = path.posix.extname(normalized).toLowerCase()
-  if (extension) {
-    const file = lookup(index.files, normalized)
-    if (!file) return { kind: "missing", relative: normalized }
-    return { kind: pageExtensions.has(extension) ? "page" : "asset", file, relative: normalized }
-  }
+  const exactFile = lookup(index.files, normalized)
+  if (exactFile) return classifyExactFile(exactFile, normalized)
 
   const pageCandidates = [
     `${normalized}.md`,
