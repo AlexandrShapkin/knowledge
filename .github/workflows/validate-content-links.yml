@@ -3,7 +3,7 @@ name: Validate content
 on:
   pull_request:
     branches:
-      - v4
+      - main
     paths:
       - content/**
       - templates/**
