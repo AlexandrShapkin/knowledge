@@ -2,157 +2,160 @@
 
 Открытая база технических заметок по Linux, сетям, DevOps, разработке и смежным темам.
 
-Сайт собран на Quartz и публикуется через GitHub Pages: `https://knowledge.alexandrshapkin.ru/`.
+Сайт работает на Quartz 5 и публикуется через GitHub Pages: `https://knowledge.alexandrshapkin.ru/`.
 
-Все пользовательские материалы находятся в каталоге [`content`](./content) и могут редактироваться в Obsidian или любом Markdown-редакторе.
+Пользовательские материалы находятся в [`content`](./content) и редактируются в Obsidian или любом Markdown-редакторе.
 
 ## Требования
 
-Для локальной работы нужны:
-
 - Git;
-- Node.js 22 или новее;
+- Node.js 22.17.1 — версия закреплена в [`.nvmrc`](./.nvmrc);
 - npm 10.9.2 или новее.
 
-После клонирования установите зависимости:
+После клонирования:
 
 ```bash
 npm ci
+npm run install-plugins
 ```
 
-## Обязательные правила контента
+## Что предоставляет Quartz 5
 
-Каждая заметка должна:
+Quartz отвечает за:
 
-- раскрывать одну конкретную тему;
-- быть законченной и понятной без обязательного чтения соседнего файла;
+- преобразование Markdown, Canvas и Bases в сайт;
+- Explorer, поиск, граф, backlinks, теги и folder pages;
+- фильтрацию `draft`, `unlisted` и `ignorePatterns`;
+- RSS, sitemap, favicon, OG-изображения и GitHub Pages build;
+- систему внешних плагинов и `quartz.lock.json`.
+
+Каталог `quartz/` является кодом upstream. Пользовательские правила и автоматизация находятся вне него, чтобы обновление Quartz не затирало проектные изменения.
+
+## Проектные инструменты
+
+Quartz не задаёт правила качества этой базы и не управляет её Git-процессом безопасным для текущей схемы remotes. Поэтому сохранены три проектных инструмента:
+
+1. `scripts/repository-sync.mjs` — validate, commit, fetch, rebase и push без force;
+2. `scripts/check-content-links.mjs` — проверка frontmatter, ссылок, графа и вложений;
+3. `scripts/ensure-content-indexes.mjs` — поддержка явных `index.md`, которые формируют иерархию и связи графа поверх нативных FolderPage.
+
+Все инструменты используют `configuration.ignorePatterns` из `quartz.config.yaml`. Поэтому `private`, `templates`, `.obsidian` и `!Meta` не проверяются как публикуемый контент и не попадают в сайт.
+
+## Правила контента
+
+Каждая содержательная Markdown-заметка должна:
+
+- раскрывать одну тему;
+- иметь YAML frontmatter с непустыми `title` и `tags`;
 - быть связанной хотя бы с одной другой заметкой;
-- начинаться с YAML frontmatter с непустыми `title` и `tags`;
-- использовать только относительные Markdown-ссылки на существующие файлы;
-- хранить изображения и другие вложения в `!assets` той же директории;
+- использовать относительные Markdown-ссылки;
+- хранить вложения в локальном `!assets`;
 - использовать понятные имена вложений.
 
-Каждый непустой каталог-раздел внутри `content/` должен содержать `index.md`. Полностью пустые каталоги игнорируются до появления в них заметки или непустого дочернего раздела. Каталоги, название которых начинается с `!`, являются служебными и не требуют индекса.
+Quartz 5 умеет обрабатывать Obsidian wiki-links, но в этом репозитории обычные Markdown-ссылки остаются осознанным переносимым контрактом.
 
-Подробные определения, примеры и контрольный список приведены в [`CONTENT_RULES.md`](./CONTENT_RULES.md).
+Подробности: [`CONTENT_RULES.md`](./CONTENT_RULES.md).
 
 ## Основные команды
 
-Полная проверка заметок:
+Полная проверка контента:
 
 ```bash
 npm run content:validate
 ```
 
-Локальный просмотр:
+Создание или обновление генерируемых `index.md`:
+
+```bash
+npm run content:indexes
+```
+
+Локальный сайт:
 
 ```bash
 npx quartz build --serve
 ```
 
-Проверка сборки:
+Production build:
 
 ```bash
+npx tsc --noEmit
 npx quartz build
 ```
 
-Синхронизация владельца:
-
-```bash
-npm run sync
-```
-
-Тесты синхронизации:
+Тесты проектной автоматизации:
 
 ```bash
 npm run sync:test
 ```
 
-`npm run sync` перед Git-операциями запускает `npm run content:validate`. При ошибке commit, merge и push не выполняются.
+## Синхронизация
 
-В аварийной ситуации локальную проверку можно пропустить:
-
-```bash
-npm run sync -- --no-check
-```
-
-Флаг отключает только локальную проверку. Проверки Pull Request и deploy остаются обязательными.
-
-`npm run sync` — собственная команда репозитория. Она находится в `scripts/` и не заменяется при `npx quartz update`.
-
-Для Git-синхронизации заметок не используйте `npx quartz sync`: стандартная команда Quartz временно исключает каталог `content` из Git-операции, а затем восстанавливает локальную копию. Из-за этого удалённые изменения заметок могут не появиться локально.
-
-Подробности: [`SMART_SYNC.md`](./SMART_SYNC.md).
-
-## Работа владельца
-
-Основная публикуемая ветка — `main`.
+Владелец:
 
 ```bash
 git switch main
 npm run sync
 ```
 
-Команда проверяет контент, коммитит локальные изменения, создаёт резервную ветку, получает актуальную `origin/main`, объединяет изменения и отправляет результат без force push.
-
-## Как внести вклад
-
-Внешние участники работают через fork и отдельную ветку.
-
-```bash
-git clone https://github.com/USER/knowledge.git
-cd knowledge
-git remote add knowledge-upstream https://github.com/AlexandrShapkin/knowledge.git
-npm ci
-git fetch knowledge-upstream main
-git switch -c docs/my-change knowledge-upstream/main
-```
-
-После редактирования:
+Контрибьютор:
 
 ```bash
 npm run sync -- --contributor
 ```
 
-Команда проверяет контент, получает `knowledge-upstream/main`, объединяет её с текущей веткой и отправляет текущую ветку в `origin`. Затем создайте Pull Request в ветку `main` оригинального репозитория.
+`npm run sync` сначала выполняет `content:validate`, затем коммитит изменения, делает rebase на удалённую ветку и отправляет результат без force push. При конфликте команда останавливается и ничего не публикует.
 
-Имя `upstream` не используется для базы знаний: Quartz использует его для собственного исходного репозитория. Для оригинального репозитория базы применяется `knowledge-upstream`.
+Не используйте `npx quartz sync` для этого репозитория: текущая реализация Quartz временно убирает `content`, получает `origin/v5` и выполняет force push текущей ветки. Здесь `origin` хранит базу знаний, а remote `upstream` используется для самого Quartz.
 
-Полная инструкция: [`CONTRIBUTING.md`](./CONTRIBUTING.md).
+Полная инструкция: [`SMART_SYNC.md`](./SMART_SYNC.md).
 
-## Автоматические проверки
+## Обновление Quartz
 
-В Pull Request и перед публикацией выполняются:
+Перед обновлением создайте рабочую ветку и убедитесь, что рабочее дерево чистое. Затем используйте штатный механизм Quartz:
 
 ```bash
-npm ci
-npm run content:validate
+npx quartz upgrade
+npm run install-plugins
 npm run sync:test
+npm run content:validate
+npx tsc --noEmit
 npx quartz build
 ```
 
-Проверяются индексы непустых каталогов-разделов, YAML, теги, ссылки, связанность графа, расположение вложений и итоговая сборка Quartz. Полностью пустые каталоги не считаются разделами.
+Изменения Quartz, конфигурации и lock-файла следует объединять через Pull Request после зелёного CI.
 
-Атомарность, законченность текста и смысловая полезность связей проверяются автором и рецензентом вручную.
+## Pull Request и CI
 
-## Публикация
+Для каждого изменения создаётся отдельная ветка. Pull Request в `main` выполняет:
 
-После обычного push или merge Pull Request в `main` workflow `.github/workflows/deploy.yml` устанавливает зависимости, проверяет контент, выполняет `npx quartz build` и публикует каталог `public` в GitHub Pages.
+```bash
+npm ci
+npm run install-plugins
+npm run content:validate
+npm run sync:test
+npx tsc --noEmit
+npx quartz build
+```
 
-Изменения следует вносить через отдельную ветку и Pull Request. Push, выполненный другим workflow через стандартный токен GitHub Actions, может не запустить workflow публикации.
+Дополнительно CI проверяет, что `!Meta` не появился в итоговом `public`.
+
+После merge в `main` workflow `.github/workflows/deploy.yml` публикует сайт в GitHub Pages.
+
+## Документы проекта
+
+- [`CONTENT_RULES.md`](./CONTENT_RULES.md) — обязательный формат контента;
+- [`CONTRIBUTING.md`](./CONTRIBUTING.md) — процесс внешних изменений;
+- [`SMART_SYNC.md`](./SMART_SYNC.md) — безопасная Git-синхронизация;
+- [`AGENTS.md`](./AGENTS.md) — правила для ИИ-агентов.
 
 ## Структура
 
 ```text
-content/                  пользовательские заметки
-scripts/                  пользовательская автоматизация
-quartz/                   исходный код upstream Quartz
-.github/workflows/        CI и публикация
-README.md                 обзор проекта
-CONTENT_RULES.md          обязательные правила заметок
-CONTRIBUTING.md           инструкция для участников
-SMART_SYNC.md             синхронизация
-AGENTS.md                 правила для ИИ-агентов
+content/                  публикуемая база знаний
+scripts/                  проектная автоматизация
+quartz/                   upstream Quartz 5
+quartz.config.yaml        конфигурация сайта и ignorePatterns
+quartz.lock.json          закреплённые версии плагинов
+.github/workflows/        CI и GitHub Pages deployment
 ```
-
-Пользовательскую автоматизацию не следует размещать внутри `quartz/`: этот каталог обновляется из upstream Quartz и локальные изменения в нём могут быть затёрты.
