@@ -1,5 +1,6 @@
 import { PageLayout, SharedLayout } from "./quartz/cfg"
 import * as Component from "./quartz/components"
+import { FileTrieNode } from "./quartz/util/fileTrie"
 
 // components shared across all pages
 export const sharedPageComponents: SharedLayout = {
@@ -39,7 +40,12 @@ export const defaultContentPageLayout: PageLayout = {
         { Component: Component.ReaderMode() },
       ],
     }),
-    Component.Explorer(),
+    Component.Explorer({
+      filterFn: (node: FileTrieNode): boolean => {
+        const parts = node.slug?.split("/") ?? []
+        return !parts.some((part) => part.startsWith("!"))
+      }
+    }),
   ],
   right: [
     Component.Graph(),
@@ -63,7 +69,12 @@ export const defaultListPageLayout: PageLayout = {
         { Component: Component.Darkmode() },
       ],
     }),
-    Component.Explorer(),
+    Component.Explorer({
+      filterFn: (node: FileTrieNode): boolean => {
+        const parts = node.slug?.split("/") ?? []
+        return !parts.some((part) => part.startsWith("!"))
+      }
+    }),
   ],
   right: [
     Component.Graph(),
