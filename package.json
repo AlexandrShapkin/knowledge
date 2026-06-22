@@ -21,7 +21,7 @@
     "install-plugins": "npx quartz plugin install --from-config",
     "prebuild": "npm run install-plugins",
     "sync": "node scripts/repository-sync.mjs",
-    "sync:test": "node --test scripts/smart-sync.test.mjs scripts/repository-sync.test.mjs",
+    "sync:test": "node --test scripts/content-policy.test.mjs scripts/repository-sync.test.mjs",
     "content:links": "node scripts/check-content-links.mjs",
     "content:indexes": "node scripts/ensure-content-indexes.mjs",
     "content:indexes:check": "node scripts/ensure-content-indexes.mjs --check",
