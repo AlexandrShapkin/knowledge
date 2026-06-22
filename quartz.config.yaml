@@ -18,9 +18,25 @@ configuration:
     fontOrigin: googleFonts
     cdnCaching: true
     typography:
-      header: Source Sans 3
-      body: Source Sans 3
-      code: JetBrains Mono
+      header:
+        name: Nunito Sans
+        weights:
+          - 500
+          - 600
+          - 700
+      body:
+        name: Source Sans 3
+        weights:
+          - 400
+          - 500
+          - 600
+          - 700
+        includeItalic: true
+      code:
+        name: JetBrains Mono
+        weights:
+          - 400
+          - 500
     colors:
       lightMode:
         light: "#faf8f8"
@@ -106,43 +122,6 @@ plugins:
     options:
       renderEngine: katex
     order: 80
-  - source: github:quartz-community/fonts
-    enabled: true
-    options:
-      useThemeFonts: false
-      fontOrigin: googleFonts
-      title: &a1
-        name: Source Sans 3
-        weights:
-          - 500
-          - 600
-          - 700
-      body:
-        name: Source Sans 3
-        weights:
-          - 400
-          - 500
-          - 600
-          - 700
-        includeItalic: true
-      header: *a1
-      interface:
-        name: Source Sans 3
-        weights:
-          - 400
-          - 500
-          - 600
-      h1: *a1
-      h2: *a1
-      h3: *a1
-      h4: *a1
-      h5: *a1
-      h6: *a1
-      code:
-        name: JetBrains Mono
-        weights:
-          - 400
-          - 500
   - source: github:quartz-community/remove-draft
     enabled: true
   - source: github:quartz-community/alias-redirects
