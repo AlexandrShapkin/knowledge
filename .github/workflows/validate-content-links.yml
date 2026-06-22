@@ -1,4 +1,4 @@
-name: Validate Quartz 5 migration
+name: Validate Quartz site
 
 on:
   pull_request:
@@ -7,12 +7,14 @@ on:
     paths:
       - content/**
       - scripts/**
+      - quartz/**
       - package.json
       - package-lock.json
       - quartz.config.yaml
       - quartz.lock.json
       - quartz.ts
       - .github/workflows/**
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -27,7 +29,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 22.17
+          node-version: 22.17.1
           cache: npm
 
       - name: Install dependencies
