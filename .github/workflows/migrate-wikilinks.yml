@@ -41,18 +41,6 @@ jobs:
       - name: Verify migration completeness
         run: npm run content:wikilinks:check
 
-      - name: Validate content
-        run: npm run content:validate
-
-      - name: Test project tooling
-        run: npm run sync:test
-
-      - name: Type-check Quartz
-        run: npx tsc --noEmit
-
-      - name: Build Quartz
-        run: npx quartz build
-
       - name: Commit migrated content
         shell: bash
         run: |
@@ -66,3 +54,15 @@ jobs:
           git diff --cached --check
           git commit -m "refactor(content): migrate internal links to wikilinks"
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
+
+      - name: Validate content
+        run: npm run content:validate
+
+      - name: Test project tooling
+        run: npm run sync:test
+
+      - name: Type-check Quartz
+        run: npx tsc --noEmit
+
+      - name: Build Quartz
+        run: npx quartz build
