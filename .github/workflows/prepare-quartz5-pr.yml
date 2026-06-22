@@ -1,0 +1,215 @@
+name: Prepare Quartz 5 pull request
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    if: github.head_ref == 'migration/quartz5' && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.17
+          cache: npm
+
+      - name: Copy repository-specific files from main
+        run: |
+          git fetch origin main
+          git checkout origin/main -- \
+            scripts \
+            CONTENT_RULES.md \
+            SMART_SYNC.md \
+            AGENTS.md \
+            CONTRIBUTING.md
+
+      - name: Replace obsolete branch references
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          files = [
+              Path("scripts/repository-sync.mjs"),
+              Path("scripts/repository-sync-core.mjs"),
+              Path("scripts/repository-sync.test.mjs"),
+              Path("SMART_SYNC.md"),
+              Path("AGENTS.md"),
+              Path("CONTRIBUTING.md"),
+          ]
+
+          for file in files:
+              text = file.read_text(encoding="utf-8")
+              file.write_text(text.replace("v4", "main"), encoding="utf-8")
+          PY
+
+      - name: Merge repository commands and dependencies
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs"
+
+          const file = "package.json"
+          const pkg = JSON.parse(fs.readFileSync(file, "utf8"))
+
+          pkg.scripts = {
+            ...pkg.scripts,
+            sync: "node scripts/repository-sync.mjs",
+            "sync:test": "node --test scripts/smart-sync.test.mjs scripts/repository-sync.test.mjs",
+            "content:links": "node scripts/check-content-links.mjs",
+            "content:indexes": "node scripts/ensure-content-indexes.mjs",
+            "content:indexes:check": "node scripts/ensure-content-indexes.mjs --check",
+            "content:validate": "npm run content:indexes:check && npm run content:links",
+          }
+
+          pkg.dependencies = {
+            ...pkg.dependencies,
+            "gray-matter": "^4.0.3",
+            "remark-frontmatter": "^5.0.0",
+            "remark-gfm": "^4.0.1",
+          }
+
+          fs.writeFileSync(file, `${JSON.stringify(pkg, null, 2)}\n`)
+          NODE
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Create Quartz 5 configuration
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs"
+          import YAML from "yaml"
+
+          const config = YAML.parse(fs.readFileSync("quartz.config.default.yaml", "utf8"))
+          const configuration = config.configuration
+
+          configuration.pageTitle = "База знаний"
+          configuration.pageTitleSuffix = "📚"
+          configuration.enableSPA = true
+          configuration.enablePopovers = true
+          configuration.analytics = { provider: "goatcounter", websiteId: "knowledge" }
+          configuration.locale = "ru-RU"
+          configuration.baseUrl = "knowledge.alexandrshapkin.ru"
+          configuration.ignorePatterns = ["private", "templates", ".obsidian", "!Meta"]
+          configuration.theme = {
+            fontOrigin: "googleFonts",
+            cdnCaching: true,
+            typography: {
+              header: "Schibsted Grotesk",
+              body: "Source Sans Pro",
+              code: "IBM Plex Mono",
+            },
+            colors: {
+              lightMode: {
+                light: "#faf8f8",
+                lightgray: "#e5e5e5",
+                gray: "#b8b8b8",
+                darkgray: "#4e4e4e",
+                dark: "#2b2b2b",
+                secondary: "#284b63",
+                tertiary: "#84a59d",
+                highlight: "rgba(143, 159, 169, 0.15)",
+                textHighlight: "#fff23688",
+              },
+              darkMode: {
+                light: "#161618",
+                lightgray: "#393639",
+                gray: "#646464",
+                darkgray: "#d4d4d4",
+                dark: "#ebebec",
+                secondary: "#7b97aa",
+                tertiary: "#84a59d",
+                highlight: "rgba(143, 159, 169, 0.15)",
+                textHighlight: "#b3aa0288",
+              },
+            },
+          }
+
+          const plugin = (suffix) => config.plugins.find((entry) => entry.source.endsWith(suffix))
+
+          plugin("/created-modified-date").options = {
+            defaultDateType: "modified",
+            priority: ["frontmatter", "filesystem", "git"],
+          }
+          plugin("/crawl-links").options = { markdownLinkResolution: "relative" }
+          plugin("/tag-list").enabled = true
+
+          const backlinks = plugin("/backlinks")
+          backlinks.layout = { position: "afterBody", priority: 10 }
+
+          const recentNotes = plugin("/recent-notes")
+          recentNotes.enabled = true
+          recentNotes.options = {
+            title: "Последние изменения",
+            limit: 5,
+            showTags: false,
+          }
+          recentNotes.layout = { position: "right", priority: 20 }
+
+          plugin("/footer").options = {
+            links: {
+              GitHub: "https://github.com/AlexandrShapkin/knowledge",
+              Telegram: "https://t.me/AlexandrShapkin",
+              "Quartz GitHub": "https://github.com/jackyzha0/quartz",
+            },
+          }
+
+          for (const suffix of [
+            "/canvas-page",
+            "/bases-page",
+            "/note-properties",
+            "/unlisted-pages",
+            "/encrypted-pages",
+          ]) {
+            const entry = plugin(suffix)
+            if (entry) entry.enabled = false
+          }
+
+          for (const pageType of ["folder", "tag"]) {
+            const page = config.layout.byPageType[pageType]
+            if (page?.positions) delete page.positions.right
+          }
+
+          fs.writeFileSync(
+            "quartz.config.yaml",
+            `# yaml-language-server: $schema=./quartz/plugins/quartz-plugins.schema.json\n${YAML.stringify(config)}`,
+          )
+          NODE
+
+      - name: Install Quartz plugins
+        run: npm run install-plugins
+
+      - name: Test synchronization
+        run: npm run sync:test
+
+      - name: Validate content
+        run: npm run content:validate
+
+      - name: Type-check Quartz
+        run: npx tsc --noEmit
+
+      - name: Build Quartz
+        run: npx quartz build
+
+      - name: Commit prepared migration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "feat: port repository customizations to Quartz 5"
+          git push origin HEAD:${{ github.head_ref }}
