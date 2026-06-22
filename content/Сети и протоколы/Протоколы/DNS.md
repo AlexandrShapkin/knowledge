@@ -46,7 +46,7 @@ dig +trace example.com
 
 ## Связанные заметки
 
-- [DHCP](DHCP.md)
-- [UDP](UDP.md)
-- [TCP](TCP.md)
-- [Модель TCP/IP](../../Сети%20и%20протоколы/Модели/TCP-IP.md)
+- [[DHCP]]
+- [[UDP]]
+- [[TCP]]
+- [[../../Сети и протоколы/Модели/TCP-IP|Модель TCP/IP]]

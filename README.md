@@ -4,7 +4,7 @@
 
 Сайт работает на Quartz 5 и публикуется через GitHub Pages: `https://knowledge.alexandrshapkin.ru/`.
 
-Пользовательские материалы находятся в [`content`](./content) и редактируются в Obsidian или любом Markdown-редакторе.
+Пользовательские материалы находятся в [`content`](./content) и редактируются преимущественно в Obsidian.
 
 ## Требования
 
@@ -19,11 +19,31 @@ npm ci
 npm run install-plugins
 ```
 
+## Настройки Obsidian
+
+Для совпадения поведения Obsidian и Quartz используются:
+
+- **Use [[Wikilinks]]** — включено;
+- **New link format** — `Relative path to file`;
+- вложения размещаются в локальном подкаталоге `!assets` рядом с заметкой.
+
+Основной формат внутренних ссылок:
+
+```markdown
+[[Соседняя заметка]]
+[[../Сети/DNS|Проверка DNS]]
+[[Соседняя заметка#Раздел]]
+![[!assets/Схема сети.png|Схема сети 800x600]]
+```
+
+Quartz 5 поддерживает встраивание изображений, SVG, PDF, аудио, видео, целых заметок, заголовков и block references.
+
 ## Что предоставляет Quartz 5
 
 Quartz отвечает за:
 
 - преобразование Markdown, Canvas и Bases в сайт;
+- Obsidian wikilinks, embeds, callouts, Mermaid и block references;
 - Explorer, поиск, граф, backlinks, теги и folder pages;
 - фильтрацию `draft`, `unlisted` и `ignorePatterns`;
 - RSS, sitemap, favicon, OG-изображения и GitHub Pages build;
@@ -33,11 +53,12 @@ Quartz отвечает за:
 
 ## Проектные инструменты
 
-Quartz не задаёт правила качества этой базы и не управляет её Git-процессом безопасным для текущей схемы remotes. Поэтому сохранены три проектных инструмента:
+Quartz не задаёт правила качества этой базы и не управляет её Git-процессом безопасным для текущей схемы remotes. Поэтому сохранены:
 
 1. `scripts/repository-sync.mjs` — validate, commit, fetch, rebase и push без force;
-2. `scripts/check-content-links.mjs` — проверка frontmatter, ссылок, графа и вложений;
-3. `scripts/ensure-content-indexes.mjs` — поддержка явных `index.md`, которые формируют иерархию и связи графа поверх нативных FolderPage.
+2. `scripts/check-content-links.mjs` — проверка frontmatter, wikilinks, Markdown-ссылок, графа и вложений;
+3. `scripts/ensure-content-indexes.mjs` — поддержка явных `index.md` поверх нативных FolderPage;
+4. `scripts/migrate-wikilinks.mjs` — одноразовая и повторяемая миграция внутренних Markdown-ссылок в wikilinks.
 
 Все инструменты используют `configuration.ignorePatterns` из `quartz.config.yaml`. Поэтому `private`, `templates`, `.obsidian` и `!Meta` не проверяются как публикуемый контент и не попадают в сайт.
 
@@ -48,11 +69,11 @@ Quartz не задаёт правила качества этой базы и н
 - раскрывать одну тему;
 - иметь YAML frontmatter с непустыми `title` и `tags`;
 - быть связанной хотя бы с одной другой заметкой;
-- использовать относительные Markdown-ссылки;
+- использовать относительные wikilinks для внутренних страниц и вложений;
 - хранить вложения в локальном `!assets`;
 - использовать понятные имена вложений.
 
-Quartz 5 умеет обрабатывать Obsidian wiki-links, но в этом репозитории обычные Markdown-ссылки остаются осознанным переносимым контрактом.
+Обычные Markdown-ссылки сохраняются для внешних URL. Существующие внутренние Markdown-ссылки поддерживаются для совместимости, но новые внутренние связи создаются как wikilinks.
 
 Подробности: [`CONTENT_RULES.md`](./CONTENT_RULES.md).
 
@@ -68,6 +89,13 @@ npm run content:validate
 
 ```bash
 npm run content:indexes
+```
+
+Миграция внутренних Markdown-ссылок:
+
+```bash
+npm run content:wikilinks
+npm run content:wikilinks:check
 ```
 
 Локальный сайт:
@@ -112,7 +140,7 @@ npm run sync -- --contributor
 
 ## Обновление Quartz
 
-Перед обновлением создайте рабочую ветку и убедитесь, что рабочее дерево чистое. Затем используйте штатный механизм Quartz:
+Перед обновлением создайте рабочую ветку и убедитесь, что рабочее дерево чистое:
 
 ```bash
 npx quartz upgrade
@@ -123,7 +151,7 @@ npx tsc --noEmit
 npx quartz build
 ```
 
-Изменения Quartz, конфигурации и lock-файла следует объединять через Pull Request после зелёного CI.
+Изменения Quartz, конфигурации и lock-файла объединяются через Pull Request после зелёного CI.
 
 ## Pull Request и CI
 

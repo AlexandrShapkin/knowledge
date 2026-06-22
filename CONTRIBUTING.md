@@ -39,6 +39,14 @@ npm ci
 npm run install-plugins
 ```
 
+## Настройки Obsidian
+
+Для совпадения поведения Obsidian и Quartz:
+
+- включите **Use [[Wikilinks]]**;
+- выберите **New link format → Relative path to file**;
+- храните вложения в локальном `!assets` рядом с заметкой.
+
 ## Рабочая ветка
 
 ```bash
@@ -71,14 +79,19 @@ tags:
 
 ## Ссылки и вложения
 
-Проект использует относительные Markdown-ссылки:
+Основной формат внутренних ссылок — Obsidian wikilinks:
 
 ```markdown
-[Диагностика SSH](Диагностика%20SSH.md)
-[Проверка DNS](../Сети/Проверка%20DNS.md)
+[[Соседняя заметка]]
+[[../Сети/DNS|Проверка DNS]]
+[[Соседняя заметка#Раздел]]
 ```
 
-Quartz 5 поддерживает wiki-links, однако они не входят в переносимый контракт этого репозитория.
+Внешние URL оформляются обычными Markdown-ссылками:
+
+```markdown
+[Документация](https://example.com)
+```
 
 Вложения размещаются в локальном `!assets`:
 
@@ -91,8 +104,10 @@ content/Kubernetes/Ingress/
 ```
 
 ```markdown
-![Схема выпуска сертификата](!assets/Схема%20выпуска%20сертификата.png)
+![[!assets/Схема выпуска сертификата.png|Схема 800x600]]
 ```
+
+Quartz 5 также поддерживает `![[Документ.pdf]]`, аудио, видео, встраивание целых заметок, разделов и block references.
 
 Имена файлов должны описывать содержимое.
 
@@ -108,6 +123,13 @@ content/Kubernetes/Ingress/
 
 ```bash
 npm run content:indexes
+```
+
+Миграция старых внутренних Markdown-ссылок:
+
+```bash
+npm run content:wikilinks
+npm run content:wikilinks:check
 ```
 
 Полная проверка контента:
@@ -182,7 +204,7 @@ compare branch: ваша рабочая ветка
 
 ```text
 docs(ssh): add host key verification note
-fix(content): repair broken Kubernetes links
+fix(content): repair broken wikilinks
 ```
 
 ## Обновление существующего PR
@@ -202,7 +224,7 @@ npm run sync -- --contributor
 - [ ] Изменение находится в отдельной ветке.
 - [ ] Новая заметка раскрывает одну тему.
 - [ ] Frontmatter содержит `title` и непустые `tags`.
-- [ ] Ссылки относительные и ведут на публикуемые файлы.
+- [ ] Wikilinks относительные и ведут на публикуемые файлы.
 - [ ] Вложения находятся в локальном `!assets`.
 - [ ] Структурные изменения отражены в `index.md`.
 - [ ] Выполнен `npm run content:validate`.

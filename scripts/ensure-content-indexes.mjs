@@ -62,18 +62,6 @@ function hasNoteContent(directory) {
   return result
 }
 
-function encodePath(value) {
-  return value
-    .split("/")
-    .map((segment) =>
-      encodeURIComponent(segment)
-        .replace(/\(/g, "%28")
-        .replace(/\)/g, "%29")
-        .replace(/'/g, "%27"),
-    )
-    .join("/")
-}
-
 function parseFrontmatter(source) {
   const normalized = source.replace(/\r\n/g, "\n")
   if (!normalized.startsWith("---\n")) return { fields: new Map(), body: normalized }
@@ -170,6 +158,14 @@ function nearestInheritedTags(directory) {
   return []
 }
 
+function escapeAlias(value) {
+  return value.replace(/\|/g, "\\|")
+}
+
+function markdownPageTarget(filename) {
+  return filename.replace(/\.(?:md|mdx)$/i, "")
+}
+
 function buildIndex(directory) {
   const entries = ordinaryEntries(directory).sort((left, right) => {
     if (left.isDirectory() !== right.isDirectory()) return left.isDirectory() ? -1 : 1
@@ -183,7 +179,7 @@ function buildIndex(directory) {
     (entry) =>
       entry.isFile() &&
       [".md", ".mdx"].includes(path.extname(entry.name).toLowerCase()) &&
-      entry.name.toLowerCase() !== "index.md",
+      !["index.md", "index.mdx"].includes(entry.name.toLowerCase()),
   )
 
   const indexFile = path.join(directory, "index.md")
@@ -207,7 +203,7 @@ function buildIndex(directory) {
     for (const entry of childDirectories) {
       const childIndex = path.join(directory, entry.name, "index.md")
       const childTitle = readTitle(childIndex) || entry.name
-      lines.push(`- [${childTitle}](${encodePath(`${entry.name}/index.md`)})`)
+      lines.push(`- [[${entry.name}/index|${escapeAlias(childTitle)}]]`)
     }
     lines.push("")
   }
@@ -216,7 +212,7 @@ function buildIndex(directory) {
     lines.push("## Заметки", "")
     for (const entry of childNotes) {
       const childFile = path.join(directory, entry.name)
-      lines.push(`- [${readTitle(childFile)}](${encodePath(entry.name)})`)
+      lines.push(`- [[${markdownPageTarget(entry.name)}|${escapeAlias(readTitle(childFile))}]]`)
     }
     lines.push("")
   }

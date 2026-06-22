@@ -64,7 +64,7 @@ test("check mode ignores completely empty and Quartz-ignored directories", () =>
   }
 })
 
-test("generated indexes exclude empty and ignored child directories", () => {
+test("generated indexes use wikilinks and exclude empty and ignored child directories", () => {
   const root = mkdtempSync(path.join(tmpdir(), "content-indexes-write-"))
 
   try {
@@ -79,7 +79,7 @@ test("generated indexes exclude empty and ignored child directories", () => {
     const generated = readFileSync(path.join(root, "content", "Section", "index.md"), "utf8")
 
     assert.equal(result.status, 0, result.stderr)
-    assert.match(generated, /\[Note\]\(Note\.md\)/)
+    assert.match(generated, /\[\[Note\|Note\]\]/)
     assert.doesNotMatch(generated, /EmptyChild|!Meta|Workspace/)
   } finally {
     rmSync(root, { recursive: true, force: true })

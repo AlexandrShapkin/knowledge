@@ -7,15 +7,15 @@ tags:
 
 ## Основные разделы
 
-- [Процессы](Процессы/index.md)
-- [Анализ ресурсов с top и htop](Анализ%20ресурсов/top/top.md)
-- [systemd](systemd/index.md)
-- [SELinux](RHEL/SELinux/index.md)
-- [Файловые системы proc и sys](Файловая%20система/proc%20vs%20sys.md)
-- [Диагностика по методике RED S.O.S](Траблшутинг/RED%20S.O.S/RED%20S.O.S.md)
+- [[Процессы/index|Процессы]]
+- [[Анализ ресурсов/top/top|Анализ ресурсов с top и htop]]
+- [[systemd/index|systemd]]
+- [[RHEL/SELinux/index|SELinux]]
+- [[Файловая система/proc vs sys|Файловые системы proc и sys]]
+- [[Траблшутинг/RED S.O.S/RED S.O.S|Диагностика по методике RED S.O.S]]
 
 ## Файлы и inode
 
-- [inode](inode.md)
-- [Работа с inode](Работа%20с%20inode.md)
-- [Файловый дескриптор](Файловый%20дескриптор.md)
+- [[inode]]
+- [[Работа с inode]]
+- [[Файловый дескриптор]]

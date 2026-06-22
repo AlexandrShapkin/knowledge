@@ -11,7 +11,7 @@ tags:
 
 ## Заметки
 
-- [free](free.md)
-- [Swap](Swap.md)
-- [total](total.md)
-- [used](used.md)
+- [[free|free]]
+- [[Swap|Swap]]
+- [[total|total]]
+- [[used|used]]

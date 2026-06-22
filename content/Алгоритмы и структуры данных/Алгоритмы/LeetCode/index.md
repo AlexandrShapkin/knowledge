@@ -10,5 +10,5 @@ tags:
 
 ## Заметки
 
-- [13. Roman to Integer](13.%20Roman%20to%20Integer.md)
-- [9. Palindrome Number](9.%20Palindrome%20Number.md)
+- [[13. Roman to Integer|13. Roman to Integer]]
+- [[9. Palindrome Number|9. Palindrome Number]]

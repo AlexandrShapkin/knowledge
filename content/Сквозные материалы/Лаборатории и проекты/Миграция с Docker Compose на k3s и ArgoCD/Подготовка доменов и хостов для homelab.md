@@ -22,4 +22,4 @@ tags:
 
 ## Связанные заметки
 
-- [Миграция с Docker Compose на k3s и ArgoCD](index.md)
+- [[index|Миграция с Docker Compose на k3s и ArgoCD]]

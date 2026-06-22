@@ -7,9 +7,9 @@ tags:
 
 ## Основные материалы
 
-- [Проверка строки на палиндром](Проверка%20строки%20на%20палиндром.md)
+- [[Проверка строки на палиндром]]
 
 ## LeetCode
 
-- [9. Palindrome Number](LeetCode/9.%20Palindrome%20Number.md)
-- [13. Roman to Integer](LeetCode/13.%20Roman%20to%20Integer.md)
+- [[LeetCode/9. Palindrome Number]]
+- [[LeetCode/13. Roman to Integer]]

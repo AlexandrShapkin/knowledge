@@ -9,9 +9,16 @@ import { visit } from "unist-util-visit"
 import {
   isAssetPath,
   isServicePath,
+  listContentDirectories,
   listContentFiles,
   loadContentPolicy,
 } from "./content-policy.mjs"
+import {
+  createPublishedIndex,
+  findWikilinks,
+  pageExtensions,
+  resolveRelativeWikilink,
+} from "./wikilinks.mjs"
 
 const root = process.cwd()
 const policy = loadContentPolicy(root)
@@ -21,7 +28,6 @@ const reportFile = reportAt >= 0 ? path.resolve(root, process.argv[reportAt + 1]
 const parser = unified().use(remarkParse).use(remarkFrontmatter, ["yaml"]).use(remarkGfm)
 const issues = []
 const links = new Map()
-const pageExtensions = new Set([".md", ".mdx", ".canvas", ".base"])
 
 const posix = (value) => value.split(path.sep).join("/")
 const relative = (value) => posix(path.relative(root, value))
@@ -85,26 +91,69 @@ function validateMetadata(file, source) {
   }
 }
 
-function validateWikiLinks(file, tree) {
-  visit(tree, "text", (node) => {
-    const value = String(node.value ?? "")
-    for (const match of value.matchAll(/!?\[\[[^\]]+\]\]/g)) {
-      const precedingLines = value.slice(0, match.index).split("\n").length - 1
-      const line = (node.position?.start?.line ?? 1) + precedingLines
-      add(file, line, "wiki-link", match[0], "Используйте относительную Markdown-ссылку по правилам репозитория")
-    }
-  })
-}
-
 const publishedFiles = listContentFiles(policy).map((file) => path.resolve(file))
+const publishedDirectories = listContentDirectories(policy).map((directory) => path.resolve(directory))
 const publishedSet = new Set(publishedFiles)
+const publishedIndex = createPublishedIndex(policy, publishedFiles, publishedDirectories)
 const markdown = listContentFiles(policy, { markdownOnly: true })
   .map((file) => path.resolve(file))
   .filter((file) => !isServicePath(policy, file))
   .sort((a, b) => a.localeCompare(b, "ru"))
 const markdownSet = new Set(markdown)
 
-function validateLink(file, node, image = false) {
+function recordPageLink(source, target) {
+  if (target && markdownSet.has(target) && target !== source) links.get(source)?.add(target)
+}
+
+function validateResolvedAsset(file, line, target, resolved) {
+  const localAssets = path.join(path.dirname(file), "!assets")
+  if (!inside(localAssets, resolved)) {
+    add(file, line, "asset-location", target, "Вложение должно находиться в !assets рядом с заметкой")
+  }
+  if (!meaningful(resolved)) add(file, line, "generic-asset-name", target, "Вложение должно иметь понятное имя")
+}
+
+function validateWikiLinks(file, tree) {
+  visit(tree, "text", (node) => {
+    const value = String(node.value ?? "")
+    for (const wikilink of findWikilinks(value)) {
+      const precedingLines = value.slice(0, wikilink.index).split("\n").length - 1
+      const line = (node.position?.start?.line ?? 1) + precedingLines
+
+      if (wikilink.target.includes("\\")) {
+        add(file, line, "wikilink-backslash", wikilink.raw, "В wikilink должен использоваться /")
+        continue
+      }
+
+      const resolved = resolveRelativeWikilink(policy, publishedIndex, file, wikilink.target)
+      if (resolved.kind === "external") continue
+      if (resolved.kind === "outside") {
+        add(file, line, "wikilink-outside-content", wikilink.raw, "Wikilink выходит за пределы content")
+        continue
+      }
+      if (resolved.kind === "missing") {
+        add(file, line, "broken-wikilink", wikilink.raw, `Цель wikilink не найдена: ${resolved.relative}`)
+        continue
+      }
+      if (resolved.kind === "folder") continue
+
+      if (resolved.kind === "page") {
+        if (resolved.file && isServicePath(policy, resolved.file) && !isAssetPath(policy, resolved.file)) {
+          add(file, line, "service-page-target", wikilink.raw, "Служебный каталог не должен содержать публикуемые страницы")
+          continue
+        }
+        recordPageLink(file, resolved.file)
+        continue
+      }
+
+      if (resolved.kind === "asset" && resolved.file) {
+        validateResolvedAsset(file, line, wikilink.raw, resolved.file)
+      }
+    }
+  })
+}
+
+function validateMarkdownLink(file, node, image = false) {
   const target = String(node.url ?? "").trim()
   const line = node.position?.start?.line ?? null
   if (!target) return add(file, line, "empty-target", target, "Ссылка не содержит адреса")
@@ -112,7 +161,7 @@ function validateLink(file, node, image = false) {
   if (target.startsWith("/")) return add(file, line, "absolute-path", target, "Внутренняя ссылка должна быть относительной")
   if (target.includes("\\")) add(file, line, "backslash", target, "В пути должен использоваться /")
   if ([" ", "(", ")"].some((character) => target.includes(character))) {
-    add(file, line, "unencoded-character", target, "Пробелы и скобки в пути должны быть URL-кодированы")
+    add(file, line, "unencoded-character", target, "Пробелы и скобки в Markdown-пути должны быть URL-кодированы")
   }
 
   const raw = target.split("#")[0].split("?")[0]
@@ -122,7 +171,7 @@ function validateLink(file, node, image = false) {
   const extension = path.extname(decoded.value).toLowerCase()
   const kind = image || (extension && !pageExtensions.has(extension)) ? "asset" : "page"
   if (kind === "page" && !pageExtensions.has(extension)) {
-    return add(file, line, "missing-page-extension", target, "Ссылка на страницу должна содержать .md, .mdx, .canvas или .base")
+    return add(file, line, "missing-page-extension", target, "Markdown-ссылка на страницу должна содержать .md, .mdx, .canvas или .base")
   }
 
   const resolved = path.resolve(path.dirname(file), decoded.value)
@@ -137,14 +186,11 @@ function validateLink(file, node, image = false) {
     if (isServicePath(policy, resolved)) {
       return add(file, line, "service-page-target", target, "Служебный каталог не должен содержать публикуемые страницы")
     }
-    if (markdownSet.has(resolved) && resolved !== file) links.get(file)?.add(resolved)
+    recordPageLink(file, resolved)
     return
   }
 
-  if (!inside(path.join(path.dirname(file), "!assets"), resolved)) {
-    add(file, line, "asset-location", target, "Вложение должно находиться в !assets рядом с заметкой")
-  }
-  if (!meaningful(resolved)) add(file, line, "generic-asset-name", target, "Вложение должно иметь понятное имя")
+  validateResolvedAsset(file, line, target, resolved)
 }
 
 for (const file of markdown) links.set(file, new Set())
@@ -162,9 +208,9 @@ for (const file of markdown) {
   }
 
   validateWikiLinks(file, tree)
-  visit(tree, "link", (node) => validateLink(file, node))
-  visit(tree, "image", (node) => validateLink(file, node, true))
-  visit(tree, "definition", (node) => validateLink(file, node))
+  visit(tree, "link", (node) => validateMarkdownLink(file, node))
+  visit(tree, "image", (node) => validateMarkdownLink(file, node, true))
+  visit(tree, "definition", (node) => validateMarkdownLink(file, node))
 }
 
 const incoming = new Map(markdown.map((file) => [file, new Set()]))

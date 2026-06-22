@@ -101,6 +101,7 @@ plugins:
   - source: github:quartz-community/obsidian-flavored-markdown
     enabled: true
     options:
+      wikilinks: true
       enableInHtmlEmbed: false
       enableCheckbox: true
     order: 30
@@ -118,6 +119,8 @@ plugins:
     enabled: true
     options:
       markdownLinkResolution: relative
+      disableBrokenWikilinks: true
+      lazyLoad: true
     order: 60
   - source: github:quartz-community/description
     enabled: true

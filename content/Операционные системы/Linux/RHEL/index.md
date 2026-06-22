@@ -10,4 +10,4 @@ tags:
 
 ## Разделы
 
-- [SELinux](SELinux/index.md)
+- [[SELinux/index|SELinux]]
