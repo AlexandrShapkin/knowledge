@@ -86,14 +86,14 @@ npm run sync -- --no-check
 
 ## Работа владельца
 
-Основная публикуемая ветка — `v4`.
+Основная публикуемая ветка — `main`.
 
 ```bash
-git switch v4
+git switch main
 npm run sync
 ```
 
-Команда проверяет контент, коммитит локальные изменения, создаёт резервную ветку, получает актуальную `origin/v4`, объединяет изменения и отправляет результат без force push.
+Команда проверяет контент, коммитит локальные изменения, создаёт резервную ветку, получает актуальную `origin/main`, объединяет изменения и отправляет результат без force push.
 
 ## Как внести вклад
 
@@ -104,8 +104,8 @@ git clone https://github.com/USER/knowledge.git
 cd knowledge
 git remote add knowledge-upstream https://github.com/AlexandrShapkin/knowledge.git
 npm ci
-git fetch knowledge-upstream v4
-git switch -c docs/my-change knowledge-upstream/v4
+git fetch knowledge-upstream main
+git switch -c docs/my-change knowledge-upstream/main
 ```
 
 После редактирования:
@@ -114,7 +114,7 @@ git switch -c docs/my-change knowledge-upstream/v4
 npm run sync -- --contributor
 ```
 
-Команда проверяет контент, получает `knowledge-upstream/v4`, объединяет её с текущей веткой и отправляет текущую ветку в `origin`. Затем создайте Pull Request в ветку `v4` оригинального репозитория.
+Команда проверяет контент, получает `knowledge-upstream/main`, объединяет её с текущей веткой и отправляет текущую ветку в `origin`. Затем создайте Pull Request в ветку `main` оригинального репозитория.
 
 Имя `upstream` не используется для базы знаний: Quartz использует его для собственного исходного репозитория. Для оригинального репозитория базы применяется `knowledge-upstream`.
 
@@ -137,7 +137,7 @@ npx quartz build
 
 ## Публикация
 
-После обычного push или merge Pull Request в `v4` workflow `.github/workflows/deploy.yml` устанавливает зависимости, проверяет контент, выполняет `npx quartz build` и публикует каталог `public` в GitHub Pages.
+После обычного push или merge Pull Request в `main` workflow `.github/workflows/deploy.yml` устанавливает зависимости, проверяет контент, выполняет `npx quartz build` и публикует каталог `public` в GitHub Pages.
 
 Изменения следует вносить через отдельную ветку и Pull Request. Push, выполненный другим workflow через стандартный токен GitHub Actions, может не запустить workflow публикации.
 

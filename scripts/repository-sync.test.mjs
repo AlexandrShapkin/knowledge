@@ -41,7 +41,7 @@ function createSeedRepository(root) {
   const bare = path.join(root, "origin.git")
   const seed = path.join(root, "seed")
   git(root, "init", "--bare", bare)
-  git(root, "init", "-b", "v4", seed)
+  git(root, "init", "-b", "main", seed)
   configure(seed)
   mkdirSync(path.join(seed, "content"), { recursive: true })
   writeFileSync(
@@ -51,27 +51,27 @@ function createSeedRepository(root) {
   git(seed, "add", ".")
   git(seed, "commit", "-m", "Initial")
   git(seed, "remote", "add", "origin", bare)
-  git(seed, "push", "-u", "origin", "v4")
-  git(root, "--git-dir", bare, "symbolic-ref", "HEAD", "refs/heads/v4")
+  git(seed, "push", "-u", "origin", "main")
+  git(root, "--git-dir", bare, "symbolic-ref", "HEAD", "refs/heads/main")
   return bare
 }
 
 test("owner mode uses the current branch on origin", () => {
-  assert.deepEqual(parseArgs([], "v4"), {
+  assert.deepEqual(parseArgs([], "main"), {
     mode: "owner",
     pullRemote: "origin",
-    pullBranch: "v4",
+    pullBranch: "main",
     pushRemote: "origin",
-    pushBranch: "v4",
+    pushBranch: "main",
     message: null,
   })
 })
 
-test("contributor mode pulls v4 from knowledge-upstream and pushes the current branch", () => {
+test("contributor mode pulls main from knowledge-upstream and pushes the current branch", () => {
   assert.deepEqual(parseArgs(["--contributor"], "docs/update"), {
     mode: "contributor",
     pullRemote: "knowledge-upstream",
-    pullBranch: "v4",
+    pullBranch: "main",
     pushRemote: "origin",
     pushBranch: "docs/update",
     message: null,
@@ -104,7 +104,7 @@ test("owner sync combines independent local and remote Markdown changes", () => 
     writeFileSync(remoteFile, readFileSync(remoteFile, "utf8").replace("Base remote.", "Remote edit."))
     git(remote, "add", ".")
     git(remote, "commit", "-m", "Remote edit")
-    git(remote, "push", "origin", "v4")
+    git(remote, "push", "origin", "main")
 
     const result = run(process.execPath, [path.join(local, "scripts", "repository-sync.mjs")], local)
     assert.equal(result.status, 0)
@@ -113,7 +113,7 @@ test("owner sync combines independent local and remote Markdown changes", () => 
     assert.match(merged, /Local edit\./)
     assert.match(merged, /Remote edit\./)
 
-    git(remote, "pull", "--ff-only", "origin", "v4")
+    git(remote, "pull", "--ff-only", "origin", "main")
     const published = readFileSync(remoteFile, "utf8")
     assert.match(published, /Local edit\./)
     assert.match(published, /Remote edit\./)
@@ -122,7 +122,7 @@ test("owner sync combines independent local and remote Markdown changes", () => 
   }
 })
 
-test("contributor sync pulls upstream v4 and pushes only the feature branch to the fork", () => {
+test("contributor sync pulls upstream main and pushes only the feature branch to the fork", () => {
   const root = mkdtempSync(path.join(tmpdir(), "repository-sync-contributor-"))
   try {
     const upstream = createSeedRepository(root)
@@ -152,7 +152,7 @@ test("contributor sync pulls upstream v4 and pushes only the feature branch to t
     )
     git(maintainer, "add", ".")
     git(maintainer, "commit", "-m", "Maintainer edit")
-    git(maintainer, "push", "origin", "v4")
+    git(maintainer, "push", "origin", "main")
 
     const result = run(
       process.execPath,

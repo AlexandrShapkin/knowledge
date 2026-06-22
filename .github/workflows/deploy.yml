@@ -24,16 +24,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v6
         with:
           node-version: 22.17
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Quartz plugins
+        run: npm run install-plugins
+
       - name: Validate content contract
         run: npm run content:validate
+
+      - name: Test synchronization
+        run: npm run sync:test
 
       - name: Build Quartz
         run: npx quartz build

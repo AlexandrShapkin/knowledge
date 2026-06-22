@@ -45,11 +45,11 @@ npm ci
 Получите актуальную основную ветку и создайте отдельную ветку задачи:
 
 ```bash
-git fetch knowledge-upstream v4
-git switch -c docs/my-change knowledge-upstream/v4
+git fetch knowledge-upstream main
+git switch -c docs/my-change knowledge-upstream/main
 ```
 
-Не вносите изменения непосредственно в `v4` своего fork.
+Не вносите изменения непосредственно в `main` своего fork.
 
 Рекомендуемые имена:
 
@@ -210,7 +210,7 @@ npm run sync -- --contributor
 1. проверяет контент;
 2. коммитит локальные изменения;
 3. создаёт резервную ветку;
-4. получает `knowledge-upstream/v4`;
+4. получает `knowledge-upstream/main`;
 5. объединяет её с текущей веткой;
 6. при необходимости объединяет Markdown-конфликты;
 7. получает существующую одноимённую ветку из вашего fork;
@@ -240,7 +240,7 @@ npm run sync -- --contributor --no-check
 
 ```text
 base repository: AlexandrShapkin/knowledge
-base branch: v4
+base branch: main
 head repository: ваш fork
 compare branch: ваша рабочая ветка
 ```
@@ -261,13 +261,13 @@ fix(content): repair broken Kubernetes links
 
 ## 10. Обновление существующего Pull Request
 
-Если `v4` изменилась:
+Если `main` изменилась:
 
 ```bash
 npm run sync -- --contributor
 ```
 
-Команда снова получит актуальную `knowledge-upstream/v4`, объединит её с вашей веткой и обновит ветку в fork.
+Команда снова получит актуальную `knowledge-upstream/main`, объединит её с вашей веткой и обновит ветку в fork.
 
 ## Разрешение конфликтов
 

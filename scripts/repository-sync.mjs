@@ -19,7 +19,7 @@ export function parseArgs(argv, currentBranch) {
     if (value === "--contributor") {
       options.mode = "contributor"
       options.pullRemote = "knowledge-upstream"
-      options.pullBranch = "v4"
+      options.pullBranch = "main"
     } else if (value === "--pull-remote") options.pullRemote = argv[++index]
     else if (value === "--pull-branch") options.pullBranch = argv[++index]
     else if (value === "--push-remote") options.pushRemote = argv[++index]

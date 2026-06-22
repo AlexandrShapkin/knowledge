@@ -43,7 +43,7 @@ npm run sync
 Для основной базы:
 
 ```bash
-git switch v4
+git switch main
 npm run sync
 ```
 
@@ -55,10 +55,10 @@ npm run sync
 локальные изменения
     ↓ commit
 резервная ветка
-    ↓ fetch origin/v4
+    ↓ fetch origin/main
 трёхсторонний merge
     ↓ push без force
-origin/v4
+origin/main
 ```
 
 ## Режим контрибьютора
@@ -78,7 +78,7 @@ npm run sync -- --contributor
 В этом режиме:
 
 ```text
-получение: knowledge-upstream/v4
+получение: knowledge-upstream/main
 отправка:  origin/<текущая-ветка>
 ```
 
@@ -126,7 +126,7 @@ npm run sync -- --contributor --no-check
 - отключает только предварительный локальный запуск `content:validate`;
 - не отключает проверки Pull Request;
 - не отключает проверку перед deploy;
-- не разрешает merge невалидного контента в `v4`.
+- не разрешает merge невалидного контента в `main`.
 
 Флаг предназначен для сохранения или передачи промежуточного состояния. Использовать его как постоянный режим работы не следует.
 
@@ -137,7 +137,7 @@ npm run sync -- --contributor --no-check
 ```bash
 npm run sync -- \
   --pull-remote knowledge-upstream \
-  --pull-branch v4 \
+  --pull-branch main \
   --push-remote origin \
   --push-branch docs/my-change
 ```
