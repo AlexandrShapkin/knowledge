@@ -50,13 +50,13 @@ export const defaultContentPageLayout: PageLayout = {
     }),
   ],
   right: [
-    Component.Graph(),
-    Component.RecentNotes({
-      title: "Последние изменения",
-      limit: 5,
-      showTags: false,
-    }),
+    Component.DesktopOnly(Component.Graph()),
     Component.DesktopOnly(Component.TableOfContents()),
+    Component.DesktopOnly(Component.RecentNotes({
+      title: "Последние изменения",
+      limit: 3,
+      showTags: false,
+    })),
   ],
 }
 
@@ -83,12 +83,12 @@ export const defaultListPageLayout: PageLayout = {
     }),
   ],
   right: [
-    Component.Graph(),
-    Component.RecentNotes({
-      title: "Последние изменения",
-      limit: 5,
-      showTags: false,
-    }),
+    Component.DesktopOnly(Component.Graph()),
     Component.DesktopOnly(Component.TableOfContents()),
+    Component.DesktopOnly(Component.RecentNotes({
+      title: "Последние изменения",
+      limit: 3,
+      showTags: false,
+    })),
   ],
 }
