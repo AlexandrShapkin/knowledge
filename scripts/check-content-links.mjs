@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs"
+import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs"
 import path from "node:path"
 import matter from "gray-matter"
 import { unified } from "unified"
@@ -6,33 +6,28 @@ import remarkFrontmatter from "remark-frontmatter"
 import remarkGfm from "remark-gfm"
 import remarkParse from "remark-parse"
 import { visit } from "unist-util-visit"
+import {
+  isAssetPath,
+  isServicePath,
+  listContentFiles,
+  loadContentPolicy,
+} from "./content-policy.mjs"
 
 const root = process.cwd()
-const content = path.resolve(root, "content")
+const policy = loadContentPolicy(root)
+const content = policy.contentRoot
 const reportAt = process.argv.indexOf("--report")
 const reportFile = reportAt >= 0 ? path.resolve(root, process.argv[reportAt + 1]) : null
 const parser = unified().use(remarkParse).use(remarkFrontmatter, ["yaml"]).use(remarkGfm)
 const issues = []
 const links = new Map()
+const pageExtensions = new Set([".md", ".mdx", ".canvas", ".base"])
 
 const posix = (value) => value.split(path.sep).join("/")
 const relative = (value) => posix(path.relative(root, value))
 const external = (value) => /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(value)
-const skipped = (name) => name.startsWith(".") || name.startsWith("!")
 const add = (file, line, type, target, message) =>
   issues.push({ file: relative(file), line: line ?? null, type, target: target ?? null, message })
-
-function walk(directory, markdownOnly = false) {
-  const result = []
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    if (entry.name.startsWith(".")) continue
-    if (markdownOnly && entry.isDirectory() && skipped(entry.name)) continue
-    const file = path.join(directory, entry.name)
-    if (entry.isDirectory()) result.push(...walk(file, markdownOnly))
-    else if (!markdownOnly || entry.name.toLowerCase().endsWith(".md")) result.push(file)
-  }
-  return result
-}
 
 function inside(parent, child) {
   const rel = path.relative(parent, child)
@@ -55,16 +50,6 @@ function meaningful(file) {
       name,
     )
   )
-}
-
-function inAssets(file) {
-  let directory = path.dirname(file)
-  while (directory.startsWith(content)) {
-    if (path.basename(directory) === "!assets") return true
-    if (directory === content) break
-    directory = path.dirname(directory)
-  }
-  return false
 }
 
 function validateMetadata(file, source) {
@@ -106,10 +91,18 @@ function validateWikiLinks(file, tree) {
     for (const match of value.matchAll(/!?\[\[[^\]]+\]\]/g)) {
       const precedingLines = value.slice(0, match.index).split("\n").length - 1
       const line = (node.position?.start?.line ?? 1) + precedingLines
-      add(file, line, "wiki-link", match[0], "Используйте Markdown-ссылку")
+      add(file, line, "wiki-link", match[0], "Используйте относительную Markdown-ссылку по правилам репозитория")
     }
   })
 }
+
+const publishedFiles = listContentFiles(policy).map((file) => path.resolve(file))
+const publishedSet = new Set(publishedFiles)
+const markdown = listContentFiles(policy, { markdownOnly: true })
+  .map((file) => path.resolve(file))
+  .filter((file) => !isServicePath(policy, file))
+  .sort((a, b) => a.localeCompare(b, "ru"))
+const markdownSet = new Set(markdown)
 
 function validateLink(file, node, image = false) {
   const target = String(node.url ?? "").trim()
@@ -127,18 +120,24 @@ function validateLink(file, node, image = false) {
   if (decoded.error) return add(file, line, "invalid-url-encoding", target, "Некорректная URL-кодировка")
 
   const extension = path.extname(decoded.value).toLowerCase()
-  const kind = image || (extension && extension !== ".md") ? "asset" : "note"
-  if (kind === "note" && extension !== ".md") {
-    return add(file, line, "missing-md-extension", target, "Ссылка на заметку должна содержать .md")
+  const kind = image || (extension && !pageExtensions.has(extension)) ? "asset" : "page"
+  if (kind === "page" && !pageExtensions.has(extension)) {
+    return add(file, line, "missing-page-extension", target, "Ссылка на страницу должна содержать .md, .mdx, .canvas или .base")
   }
 
   const resolved = path.resolve(path.dirname(file), decoded.value)
   if (!inside(content, resolved)) return add(file, line, "outside-content", target, "Ссылка выходит за пределы content")
   if (!existsSync(resolved)) return add(file, line, "missing-target", target, `Файл не существует: ${relative(resolved)}`)
   if (!statSync(resolved).isFile()) return add(file, line, "target-not-file", target, "Цель должна быть файлом")
+  if (!publishedSet.has(resolved)) {
+    return add(file, line, "ignored-target", target, "Цель исключена из публикации через Quartz ignorePatterns")
+  }
 
-  if (kind === "note") {
-    if (links.has(resolved) && resolved !== file) links.get(file).add(resolved)
+  if (kind === "page") {
+    if (isServicePath(policy, resolved)) {
+      return add(file, line, "service-page-target", target, "Служебный каталог не должен содержать публикуемые страницы")
+    }
+    if (markdownSet.has(resolved) && resolved !== file) links.get(file)?.add(resolved)
     return
   }
 
@@ -148,8 +147,6 @@ function validateLink(file, node, image = false) {
   if (!meaningful(resolved)) add(file, line, "generic-asset-name", target, "Вложение должно иметь понятное имя")
 }
 
-const markdown = walk(content, true).sort((a, b) => a.localeCompare(b, "ru"))
-const allFiles = walk(content)
 for (const file of markdown) links.set(file, new Set())
 
 for (const file of markdown) {
@@ -178,9 +175,11 @@ for (const file of markdown) {
   }
 }
 
-for (const file of allFiles) {
-  if (file.toLowerCase().endsWith(".md") || !statSync(file).isFile()) continue
-  if (!inAssets(file)) add(file, null, "asset-outside-assets", null, "Вложение должно храниться в !assets")
+const validatedFiles = publishedFiles.filter((file) => !isServicePath(policy, file) || isAssetPath(policy, file))
+for (const file of validatedFiles) {
+  const extension = path.extname(file).toLowerCase()
+  if (pageExtensions.has(extension) || !statSync(file).isFile()) continue
+  if (!isAssetPath(policy, file)) add(file, null, "asset-outside-assets", null, "Вложение должно храниться в !assets")
   if (!meaningful(file)) add(file, null, "generic-asset-name", null, "Вложение должно иметь понятное имя")
 }
 
@@ -189,7 +188,8 @@ const report = {
   generatedAt: new Date().toISOString(),
   summary: {
     markdownFiles: markdown.length,
-    assetFiles: allFiles.filter((file) => !file.toLowerCase().endsWith(".md")).length,
+    pageFiles: publishedFiles.filter((file) => pageExtensions.has(path.extname(file).toLowerCase())).length,
+    assetFiles: validatedFiles.filter((file) => !pageExtensions.has(path.extname(file).toLowerCase())).length,
     issues: issues.length,
   },
   issues,
