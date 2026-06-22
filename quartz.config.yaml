@@ -13,7 +13,7 @@ configuration:
     - private
     - templates
     - .obsidian
-    - "[!]Meta"
+    - "\\!Meta/**"
   theme:
     fontOrigin: googleFonts
     cdnCaching: true
