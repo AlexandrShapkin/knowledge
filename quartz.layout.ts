@@ -2,6 +2,32 @@ import { PageLayout, SharedLayout } from "./quartz/cfg"
 import * as Component from "./quartz/components"
 import { FileTrieNode } from "./quartz/util/fileTrie"
 
+const hideBangFolders = (node: FileTrieNode): boolean => {
+  const path = node.slug ?? node.name ?? ""
+  return !path.split("/").some((part) => part.startsWith("!"))
+}
+
+const explorer = Component.Explorer({
+  filterFn: hideBangFolders,
+  useSavedState: false,
+})
+
+const topControls = Component.Flex({
+  components: [
+    { Component: Component.Search(), grow: true },
+    { Component: Component.Darkmode() },
+    { Component: Component.ReaderMode() },
+  ],
+})
+
+const leftSidebar = [Component.PageTitle(), Component.MobileOnly(Component.Spacer()), topControls, explorer]
+
+const rightSidebar = [
+  Component.Graph(),
+  Component.DesktopOnly(Component.TableOfContents()),
+  Component.Backlinks(),
+]
+
 // components shared across all pages
 export const sharedPageComponents: SharedLayout = {
   head: Component.Head(),
@@ -16,7 +42,7 @@ export const sharedPageComponents: SharedLayout = {
   }),
 }
 
-// components for pages that display a single page (e.g. a single note)
+// components for pages that display a single page
 export const defaultContentPageLayout: PageLayout = {
   beforeBody: [
     Component.ConditionalRender({
@@ -27,58 +53,13 @@ export const defaultContentPageLayout: PageLayout = {
     Component.ContentMeta(),
     Component.TagList(),
   ],
-  left: [
-    Component.PageTitle(),
-    Component.MobileOnly(Component.Spacer()),
-    Component.Flex({
-      components: [
-        {
-          Component: Component.Search(),
-          grow: true,
-        },
-        { Component: Component.Darkmode() },
-        { Component: Component.ReaderMode() },
-      ],
-    }),
-    Component.Explorer({
-      filterFn: (node: FileTrieNode): boolean => {
-        const parts = node.slug?.split("/") ?? []
-        return !parts.some((part) => part.startsWith("!"))
-      }
-    }),
-  ],
-  right: [
-    Component.Graph(),
-    Component.DesktopOnly(Component.TableOfContents()),
-    Component.Backlinks(),
-  ],
+  left: leftSidebar,
+  right: rightSidebar,
 }
 
-// components for pages that display lists of pages  (e.g. tags or folders)
+// components for pages that display lists of pages
 export const defaultListPageLayout: PageLayout = {
   beforeBody: [Component.Breadcrumbs(), Component.ArticleTitle(), Component.ContentMeta()],
-  left: [
-    Component.PageTitle(),
-    Component.MobileOnly(Component.Spacer()),
-    Component.Flex({
-      components: [
-        {
-          Component: Component.Search(),
-          grow: true,
-        },
-        { Component: Component.Darkmode() },
-      ],
-    }),
-    Component.Explorer({
-      filterFn: (node: FileTrieNode): boolean => {
-        const parts = node.slug?.split("/") ?? []
-        return !parts.some((part) => part.startsWith("!"))
-      }
-    }),
-  ],
-  right: [
-    Component.Graph(),
-    Component.DesktopOnly(Component.TableOfContents()),
-    Component.Backlinks(),
-  ],
+  left: leftSidebar,
+  right: rightSidebar,
 }
