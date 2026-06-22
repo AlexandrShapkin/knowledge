@@ -52,3 +52,13 @@ jobs:
 
       - name: Build Quartz
         run: npx quartz build
+
+      - name: Verify Obsidian metadata is not published
+        shell: bash
+        run: |
+          matches="$(find public \( -path '*/!Meta' -o -path '*/!Meta/*' -o -path '*/%21Meta' -o -path '*/%21Meta/*' \) -print)"
+          if [[ -n "$matches" ]]; then
+            echo "Obsidian metadata was published:"
+            echo "$matches"
+            exit 1
+          fi
