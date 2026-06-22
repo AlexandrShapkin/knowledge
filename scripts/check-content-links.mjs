@@ -106,7 +106,8 @@ function recordPageLink(source, target) {
 }
 
 function validateResolvedAsset(file, line, target, resolved) {
-  if (!isAssetPath(policy, resolved)) {
+  const localAssets = path.join(path.dirname(file), "!assets")
+  if (!inside(localAssets, resolved)) {
     add(file, line, "asset-location", target, "Вложение должно находиться в !assets рядом с заметкой")
   }
   if (!meaningful(resolved)) add(file, line, "generic-asset-name", target, "Вложение должно иметь понятное имя")
