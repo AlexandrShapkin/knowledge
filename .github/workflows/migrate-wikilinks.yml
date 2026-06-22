@@ -54,8 +54,23 @@ jobs:
           git commit -m "refactor(content): migrate internal links to wikilinks"
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
 
-      - name: Validate content
-        run: npm run content:validate
+      - name: Validate content and save diagnostics
+        shell: bash
+        run: |
+          set +e
+          npm run content:validate > wikilink-validation.txt 2>&1
+          status=$?
+          cat wikilink-validation.txt
+          if [[ $status -ne 0 ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add wikilink-validation.txt
+            git commit -m "test(content): capture wikilink validation report"
+            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          else
+            rm -f wikilink-validation.txt
+          fi
+          exit $status
 
       - name: Test project tooling
         run: npm run sync:test
