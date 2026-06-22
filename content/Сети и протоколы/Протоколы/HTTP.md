@@ -56,7 +56,7 @@ curl -I https://example.com/
 
 ## Связанные заметки
 
-- [DNS](DNS.md)
-- [TCP](TCP.md)
-- [UDP](UDP.md)
-- [Модель TCP/IP](../../Сети%20и%20протоколы/Модели/TCP-IP.md)
+- [[DNS]]
+- [[TCP]]
+- [[UDP]]
+- [[../../Сети и протоколы/Модели/TCP-IP|Модель TCP/IP]]

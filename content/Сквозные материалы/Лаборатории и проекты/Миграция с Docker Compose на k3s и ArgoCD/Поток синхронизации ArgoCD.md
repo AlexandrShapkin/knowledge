@@ -12,7 +12,7 @@ tags:
 
 ArgoCD работает по принципу **reconciliation loop** — бесконечный цикл сравнения «что есть в git» с «что есть в кластере». Расхождение — применить изменения.
 
-![Схема работы потока GitOps](!assets/Схема%20работы%20GitOps.png)
+![[!assets/Схема работы GitOps.png|Схема работы потока GitOps]]
 
 Точка входа — файл `clusters/homelab/root-app.yaml`. Он применяется **один раз вручную**:
 
@@ -62,4 +62,4 @@ syncOptions:
 
 ## Связанные заметки
 
-- [Миграция с Docker Compose на k3s и ArgoCD](index.md)
+- [[index|Миграция с Docker Compose на k3s и ArgoCD]]

@@ -10,4 +10,4 @@ tags:
 
 ## Разделы
 
-- [RED S.O.S](RED%20S.O.S/index.md)
+- [[RED S.O.S/index|RED S.O.S]]

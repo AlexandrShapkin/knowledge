@@ -10,6 +10,6 @@ tags:
 
 ## Заметки
 
-- [/proc vs /sys](proc%20vs%20sys.md)
-- [/proc](proc.md)
-- [/sys](sys.md)
+- [[proc vs sys|/proc vs /sys]]
+- [[proc|/proc]]
+- [[sys|/sys]]

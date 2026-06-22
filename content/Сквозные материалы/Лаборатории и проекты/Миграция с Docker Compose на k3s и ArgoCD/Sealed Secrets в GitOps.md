@@ -14,7 +14,7 @@ tags:
 
 ## Как работает Sealed Secrets
 
-![](!assets/Схема%20работы%20SealedSecret.png)
+![[!assets/Схема работы SealedSecret.png]]
 
 Приватный ключ никогда не покидает кластер — поэтому зашифрованный SealedSecret бесполезен без доступа к нему.
 
@@ -52,4 +52,4 @@ kubectl get secret -n kube-system \
 
 ## Связанные заметки
 
-- [Миграция с Docker Compose на k3s и ArgoCD](index.md)
+- [[index|Миграция с Docker Compose на k3s и ArgoCD]]
