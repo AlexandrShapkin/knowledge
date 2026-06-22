@@ -1,4 +1,4 @@
-$schema: ./quartz/plugins/quartz-plugins.schema.json
+# yaml-language-server: $schema=./quartz/plugins/quartz-plugins.schema.json
 configuration:
   pageTitle: База знаний
   pageTitleSuffix: 📚
@@ -13,14 +13,35 @@ configuration:
     - private
     - templates
     - .obsidian
-    - "!Meta"
+    - "[!]Meta"
   theme:
     fontOrigin: googleFonts
     cdnCaching: true
     typography:
-      header: Source Sans 3
-      body: Source Sans 3
-      code: JetBrains Mono
+      title:
+        name: Nunito Sans
+        weights:
+          - 600
+          - 700
+      header:
+        name: Nunito Sans
+        weights:
+          - 500
+          - 600
+          - 700
+      body:
+        name: Nunito Sans
+        weights:
+          - 400
+          - 500
+          - 600
+          - 700
+        includeItalic: true
+      code:
+        name: JetBrains Mono
+        weights:
+          - 400
+          - 500
     colors:
       lightMode:
         light: "#faf8f8"
@@ -66,8 +87,8 @@ plugins:
       defaultDateType: modified
       priority:
         - frontmatter
-        - filesystem
         - git
+        - filesystem
     order: 10
   - source: github:quartz-community/syntax-highlighting
     enabled: true
@@ -110,34 +131,32 @@ plugins:
     enabled: true
     options:
       useThemeFonts: false
-      fontOrigin: googleFonts
-      title: &a1
-        name: Source Sans 3
+      fontOrigin: local
+      title:
+        name: Nunito Sans
+        weights:
+          - 600
+          - 700
+      header:
+        name: Nunito Sans
         weights:
           - 500
           - 600
           - 700
       body:
-        name: Source Sans 3
+        name: Nunito Sans
         weights:
           - 400
           - 500
           - 600
           - 700
         includeItalic: true
-      header: *a1
       interface:
-        name: Source Sans 3
+        name: Nunito Sans
         weights:
           - 400
           - 500
           - 600
-      h1: *a1
-      h2: *a1
-      h3: *a1
-      h4: *a1
-      h5: *a1
-      h6: *a1
       code:
         name: JetBrains Mono
         weights:
@@ -157,6 +176,8 @@ plugins:
   - source: github:quartz-community/og-image
     enabled: true
   - source: github:quartz-community/cname
+    enabled: true
+  - source: github:quartz-community/canvas-page
     enabled: true
   - source: github:quartz-community/content-page
     enabled: true
@@ -249,6 +270,14 @@ plugins:
       position: left
       priority: 25
       display: mobile-only
+  - source: github:quartz-community/bases-page
+    enabled: true
+    options: {}
+    order: 50
+  - source: github:quartz-community/unlisted-pages
+    enabled: true
+    options: {}
+    order: 45
 layout:
   groups:
     toolbar:
@@ -272,3 +301,5 @@ layout:
         - reader-mode
       positions:
         right: []
+    canvas: {}
+    bases: {}
