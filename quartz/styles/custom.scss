@@ -1,3 +1,35 @@
-@use "./variables.scss" as *;
+﻿@use "./variables.scss" as *;
 
-// put your custom CSS here!
+html {
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-synthesis: none;
+}
+
+a {
+  font-weight: 500;
+}
+
+h1,
+h2 {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+h3,
+h4,
+h5,
+h6,
+thead {
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.explorer a,
+.backlinks a,
+.recent-notes a,
+.toc a {
+  font-weight: 400;
+}
