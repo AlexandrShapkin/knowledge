@@ -1,0 +1,52 @@
+name: Validate Quartz 5 migration
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - content/**
+      - scripts/**
+      - package.json
+      - package-lock.json
+      - quartz.config.yaml
+      - quartz.lock.json
+      - quartz.ts
+      - .github/workflows/**
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.17
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Quartz plugins
+        run: npm run install-plugins
+
+      - name: Test directory index rules
+        run: node --test scripts/ensure-content-indexes.test.mjs
+
+      - name: Validate content
+        run: npm run content:validate
+
+      - name: Test synchronization
+        run: npm run sync:test
+
+      - name: Type-check Quartz
+        run: npx tsc --noEmit
+
+      - name: Build Quartz
+        run: npx quartz build

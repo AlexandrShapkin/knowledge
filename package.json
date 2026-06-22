@@ -18,8 +18,14 @@
     "format": "npx prettier . --write",
     "test": "tsx --test",
     "profile": "0x -D prof ./quartz/bootstrap-cli.mjs build --concurrency=1",
-    "install-plugins": "npx tsx ./quartz/plugins/loader/install-plugins.ts",
-    "prebuild": "npm run install-plugins"
+    "install-plugins": "npx quartz plugin install --from-config",
+    "prebuild": "npm run install-plugins",
+    "sync": "node scripts/repository-sync.mjs",
+    "sync:test": "node --test scripts/smart-sync.test.mjs scripts/repository-sync.test.mjs",
+    "content:links": "node scripts/check-content-links.mjs",
+    "content:indexes": "node scripts/ensure-content-indexes.mjs",
+    "content:indexes:check": "node scripts/ensure-content-indexes.mjs --check",
+    "content:validate": "npm run content:indexes:check && npm run content:links"
   },
   "engines": {
     "npm": ">=10.9.2",
@@ -47,6 +53,7 @@
     "esbuild-sass-plugin": "^3.6.0",
     "github-slugger": "^2.0.0",
     "globby": "^16.1.0",
+    "gray-matter": "^4.0.3",
     "hast-util-to-jsx-runtime": "^2.3.6",
     "isomorphic-git": "^1.36.3",
     "lightningcss": "^1.31.1",
@@ -56,6 +63,8 @@
     "preact-render-to-string": "^6.6.5",
     "pretty-bytes": "^7.1.0",
     "pretty-time": "^1.1.0",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
     "rfdc": "^1.4.1",

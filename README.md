@@ -1,17 +1,158 @@
-# Quartz v5
+# База знаний IT
 
-> “[One] who works with the door open gets all kinds of interruptions, but [they] also occasionally gets clues as to what the world is and what might be important.” — Richard Hamming
+Открытая база технических заметок по Linux, сетям, DevOps, разработке и смежным темам.
 
-Quartz is a set of tools that helps you publish your [digital garden](https://jzhao.xyz/posts/networked-thought) and notes as a website for free.
+Сайт собран на Quartz и публикуется через GitHub Pages: `https://knowledge.alexandrshapkin.ru/`.
 
-🔗 Read the documentation and get started: https://quartz.jzhao.xyz/
+Все пользовательские материалы находятся в каталоге [`content`](./content) и могут редактироваться в Obsidian или любом Markdown-редакторе.
 
-[Join the Discord Community](https://discord.gg/cRFFHYye7t)
+## Требования
 
-## Sponsors
+Для локальной работы нужны:
 
-<p align="center">
-  <a href="https://github.com/sponsors/jackyzha0">
-    <img src="https://cdn.jsdelivr.net/gh/jackyzha0/jackyzha0/sponsorkit/sponsors.svg" />
-  </a>
-</p>
+- Git;
+- Node.js 22 или новее;
+- npm 10.9.2 или новее.
+
+После клонирования установите зависимости:
+
+```bash
+npm ci
+```
+
+## Обязательные правила контента
+
+Каждая заметка должна:
+
+- раскрывать одну конкретную тему;
+- быть законченной и понятной без обязательного чтения соседнего файла;
+- быть связанной хотя бы с одной другой заметкой;
+- начинаться с YAML frontmatter с непустыми `title` и `tags`;
+- использовать только относительные Markdown-ссылки на существующие файлы;
+- хранить изображения и другие вложения в `!assets` той же директории;
+- использовать понятные имена вложений.
+
+Каждый непустой каталог-раздел внутри `content/` должен содержать `index.md`. Полностью пустые каталоги игнорируются до появления в них заметки или непустого дочернего раздела. Каталоги, название которых начинается с `!`, являются служебными и не требуют индекса.
+
+Подробные определения, примеры и контрольный список приведены в [`CONTENT_RULES.md`](./CONTENT_RULES.md).
+
+## Основные команды
+
+Полная проверка заметок:
+
+```bash
+npm run content:validate
+```
+
+Локальный просмотр:
+
+```bash
+npx quartz build --serve
+```
+
+Проверка сборки:
+
+```bash
+npx quartz build
+```
+
+Синхронизация владельца:
+
+```bash
+npm run sync
+```
+
+Тесты синхронизации:
+
+```bash
+npm run sync:test
+```
+
+`npm run sync` перед Git-операциями запускает `npm run content:validate`. При ошибке commit, merge и push не выполняются.
+
+В аварийной ситуации локальную проверку можно пропустить:
+
+```bash
+npm run sync -- --no-check
+```
+
+Флаг отключает только локальную проверку. Проверки Pull Request и deploy остаются обязательными.
+
+`npm run sync` — собственная команда репозитория. Она находится в `scripts/` и не заменяется при `npx quartz update`.
+
+Для Git-синхронизации заметок не используйте `npx quartz sync`: стандартная команда Quartz временно исключает каталог `content` из Git-операции, а затем восстанавливает локальную копию. Из-за этого удалённые изменения заметок могут не появиться локально.
+
+Подробности: [`SMART_SYNC.md`](./SMART_SYNC.md).
+
+## Работа владельца
+
+Основная публикуемая ветка — `main`.
+
+```bash
+git switch main
+npm run sync
+```
+
+Команда проверяет контент, коммитит локальные изменения, создаёт резервную ветку, получает актуальную `origin/main`, объединяет изменения и отправляет результат без force push.
+
+## Как внести вклад
+
+Внешние участники работают через fork и отдельную ветку.
+
+```bash
+git clone https://github.com/USER/knowledge.git
+cd knowledge
+git remote add knowledge-upstream https://github.com/AlexandrShapkin/knowledge.git
+npm ci
+git fetch knowledge-upstream main
+git switch -c docs/my-change knowledge-upstream/main
+```
+
+После редактирования:
+
+```bash
+npm run sync -- --contributor
+```
+
+Команда проверяет контент, получает `knowledge-upstream/main`, объединяет её с текущей веткой и отправляет текущую ветку в `origin`. Затем создайте Pull Request в ветку `main` оригинального репозитория.
+
+Имя `upstream` не используется для базы знаний: Quartz использует его для собственного исходного репозитория. Для оригинального репозитория базы применяется `knowledge-upstream`.
+
+Полная инструкция: [`CONTRIBUTING.md`](./CONTRIBUTING.md).
+
+## Автоматические проверки
+
+В Pull Request и перед публикацией выполняются:
+
+```bash
+npm ci
+npm run content:validate
+npm run sync:test
+npx quartz build
+```
+
+Проверяются индексы непустых каталогов-разделов, YAML, теги, ссылки, связанность графа, расположение вложений и итоговая сборка Quartz. Полностью пустые каталоги не считаются разделами.
+
+Атомарность, законченность текста и смысловая полезность связей проверяются автором и рецензентом вручную.
+
+## Публикация
+
+После обычного push или merge Pull Request в `main` workflow `.github/workflows/deploy.yml` устанавливает зависимости, проверяет контент, выполняет `npx quartz build` и публикует каталог `public` в GitHub Pages.
+
+Изменения следует вносить через отдельную ветку и Pull Request. Push, выполненный другим workflow через стандартный токен GitHub Actions, может не запустить workflow публикации.
+
+## Структура
+
+```text
+content/                  пользовательские заметки
+scripts/                  пользовательская автоматизация
+quartz/                   исходный код upstream Quartz
+.github/workflows/        CI и публикация
+README.md                 обзор проекта
+CONTENT_RULES.md          обязательные правила заметок
+CONTRIBUTING.md           инструкция для участников
+SMART_SYNC.md             синхронизация
+AGENTS.md                 правила для ИИ-агентов
+```
+
+Пользовательскую автоматизацию не следует размещать внутри `quartz/`: этот каталог обновляется из upstream Quartz и локальные изменения в нём могут быть затёрты.
