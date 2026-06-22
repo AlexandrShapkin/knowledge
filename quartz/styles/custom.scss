@@ -1,35 +1,52 @@
-﻿@use "./variables.scss" as *;
-
-html {
-  text-rendering: optimizeLegibility;
-}
+@use "./variables.scss" as *;
 
 body {
-  font-synthesis: none;
+  font-family: var(--bodyFont);
+  font-kerning: normal;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+thead {
+  font-family: var(--headerFont);
+  font-weight: 600;
+  letter-spacing: normal;
+}
+
+h1 a,
+h2 a,
+h3 a,
+h4 a,
+h5 a,
+h6 a {
+  font-family: inherit;
+  font-weight: inherit;
 }
 
 a {
   font-weight: 500;
 }
 
-h1,
-h2 {
+.page-title,
+.page-title a,
+.article-title {
+  font-family: var(--headerFont);
   font-weight: 600;
-  letter-spacing: -0.015em;
-}
-
-h3,
-h4,
-h5,
-h6,
-thead {
-  font-weight: 500;
-  letter-spacing: -0.01em;
 }
 
 .explorer a,
 .backlinks a,
 .recent-notes a,
-.toc a {
+.toc a,
+.breadcrumb-container a {
+  font-family: var(--bodyFont);
   font-weight: 400;
+}
+
+strong {
+  font-weight: 600;
 }
