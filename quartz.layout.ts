@@ -3,7 +3,7 @@ import * as Component from "./quartz/components"
 import { FileTrieNode } from "./quartz/util/fileTrie"
 
 const hideBangFolders = (node: FileTrieNode): boolean => {
-  const path = node.slug ?? node.name ?? ""
+  const path = node.slug ?? ""
   return !path.split("/").some((part) => part.startsWith("!"))
 }
 
