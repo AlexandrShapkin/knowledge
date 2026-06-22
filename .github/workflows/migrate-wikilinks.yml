@@ -1,22 +1,24 @@
 name: Migrate content to wikilinks
 
 on:
-  push:
+  pull_request:
     branches:
-      - feat-wikilinks
-    paths:
-      - .github/workflows/migrate-wikilinks.yml
+      - main
+    types:
+      - opened
+      - reopened
 
 permissions:
   contents: write
 
 jobs:
   migrate:
-    if: contains(github.event.head_commit.message, '[run-wikilink-migration]')
+    if: github.event.pull_request.head.ref == 'feat-wikilinks' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
 
       - uses: actions/setup-node@v6
@@ -63,4 +65,4 @@ jobs:
           git add content
           git diff --cached --check
           git commit -m "refactor(content): migrate internal links to wikilinks"
-          git push origin HEAD:feat-wikilinks
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
