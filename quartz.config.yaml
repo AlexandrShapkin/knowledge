@@ -1,4 +1,4 @@
-$schema: ./quartz/plugins/quartz-plugins.schema.json
+# yaml-language-server: $schema=./quartz/plugins/quartz-plugins.schema.json
 configuration:
   pageTitle: База знаний
   pageTitleSuffix: 📚
@@ -13,11 +13,16 @@ configuration:
     - private
     - templates
     - .obsidian
-    - "!Meta"
+    - "[!]Meta"
   theme:
     fontOrigin: googleFonts
     cdnCaching: true
     typography:
+      title:
+        name: Nunito Sans
+        weights:
+          - 600
+          - 700
       header:
         name: Nunito Sans
         weights:
@@ -25,7 +30,7 @@ configuration:
           - 600
           - 700
       body:
-        name: Source Sans 3
+        name: Nunito Sans
         weights:
           - 400
           - 500
@@ -82,8 +87,8 @@ plugins:
       defaultDateType: modified
       priority:
         - frontmatter
-        - filesystem
         - git
+        - filesystem
     order: 10
   - source: github:quartz-community/syntax-highlighting
     enabled: true
@@ -122,6 +127,41 @@ plugins:
     options:
       renderEngine: katex
     order: 80
+  - source: github:quartz-community/fonts
+    enabled: true
+    options:
+      useThemeFonts: false
+      fontOrigin: local
+      title:
+        name: Nunito Sans
+        weights:
+          - 600
+          - 700
+      header:
+        name: Nunito Sans
+        weights:
+          - 500
+          - 600
+          - 700
+      body:
+        name: Nunito Sans
+        weights:
+          - 400
+          - 500
+          - 600
+          - 700
+        includeItalic: true
+      interface:
+        name: Nunito Sans
+        weights:
+          - 400
+          - 500
+          - 600
+      code:
+        name: JetBrains Mono
+        weights:
+          - 400
+          - 500
   - source: github:quartz-community/remove-draft
     enabled: true
   - source: github:quartz-community/alias-redirects
@@ -136,6 +176,8 @@ plugins:
   - source: github:quartz-community/og-image
     enabled: true
   - source: github:quartz-community/cname
+    enabled: true
+  - source: github:quartz-community/canvas-page
     enabled: true
   - source: github:quartz-community/content-page
     enabled: true
@@ -228,6 +270,14 @@ plugins:
       position: left
       priority: 25
       display: mobile-only
+  - source: github:quartz-community/bases-page
+    enabled: true
+    options: {}
+    order: 50
+  - source: github:quartz-community/unlisted-pages
+    enabled: true
+    options: {}
+    order: 45
 layout:
   groups:
     toolbar:
@@ -251,3 +301,5 @@ layout:
         - reader-mode
       positions:
         right: []
+    canvas: {}
+    bases: {}
