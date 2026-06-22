@@ -1,16 +1,14 @@
 import assert from "node:assert/strict"
-import { mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, copyFileSync } from "node:fs"
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import path from "node:path"
 import { spawnSync } from "node:child_process"
 import test from "node:test"
 import { fileURLToPath } from "node:url"
-import { parseArgs, parseSyncArgs } from "./repository-sync.mjs"
+import { parseArgs } from "./repository-sync.mjs"
 
 const scriptsDir = path.dirname(fileURLToPath(import.meta.url))
 const syncScript = path.join(scriptsDir, "repository-sync.mjs")
-const syncCoreScript = path.join(scriptsDir, "repository-sync-core.mjs")
-const mergeScript = path.join(scriptsDir, "smart-sync.mjs")
 
 function run(command, args, cwd, allowFailure = false) {
   const result = spawnSync(command, args, { cwd, encoding: "utf8" })
@@ -29,12 +27,10 @@ function configure(cwd) {
   git(cwd, "config", "user.email", "sync-test@example.com")
 }
 
-function installScripts(cwd) {
+function installScript(cwd) {
   const target = path.join(cwd, "scripts")
   mkdirSync(target, { recursive: true })
   copyFileSync(syncScript, path.join(target, "repository-sync.mjs"))
-  copyFileSync(syncCoreScript, path.join(target, "repository-sync-core.mjs"))
-  copyFileSync(mergeScript, path.join(target, "smart-sync.mjs"))
 }
 
 function createSeedRepository(root) {
@@ -46,7 +42,7 @@ function createSeedRepository(root) {
   mkdirSync(path.join(seed, "content"), { recursive: true })
   writeFileSync(
     path.join(seed, "content", "note.md"),
-    "---\ntitle: Note\ntags:\n  - base\n---\n\n# Note\n\n## Local\n\nBase local.\n\n## Remote\n\nBase remote.\n",
+    "---\ntitle: Note\ntags:\n  - base\n---\n\n# Note\n\nLocal section.\n\nRemote section.\n",
   )
   git(seed, "add", ".")
   git(seed, "commit", "-m", "Initial")
@@ -59,6 +55,7 @@ function createSeedRepository(root) {
 test("owner mode uses the current branch on origin", () => {
   assert.deepEqual(parseArgs([], "main"), {
     mode: "owner",
+    skipCheck: false,
     pullRemote: "origin",
     pullBranch: "main",
     pushRemote: "origin",
@@ -67,9 +64,10 @@ test("owner mode uses the current branch on origin", () => {
   })
 })
 
-test("contributor mode pulls main from knowledge-upstream and pushes the current branch", () => {
-  assert.deepEqual(parseArgs(["--contributor"], "docs/update"), {
+test("contributor mode rebases onto knowledge-upstream/main and pushes the feature branch", () => {
+  assert.deepEqual(parseArgs(["--contributor", "--no-check"], "docs/update"), {
     mode: "contributor",
+    skipCheck: true,
     pullRemote: "knowledge-upstream",
     pullBranch: "main",
     pushRemote: "origin",
@@ -78,14 +76,37 @@ test("contributor mode pulls main from knowledge-upstream and pushes the current
   })
 })
 
-test("--no-check is removed before synchronization core arguments are parsed", () => {
-  assert.deepEqual(parseSyncArgs(["--contributor", "--no-check", "--message", "docs: update"]), {
-    skipCheck: true,
-    forwarded: ["--contributor", "--message", "docs: update"],
-  })
+test("explicit remotes and branches override mode defaults", () => {
+  assert.deepEqual(
+    parseArgs(
+      [
+        "--contributor",
+        "--pull-remote",
+        "source",
+        "--pull-branch",
+        "stable",
+        "--push-remote",
+        "fork",
+        "--push-branch",
+        "topic",
+        "--message",
+        "docs: update",
+      ],
+      "docs/update",
+    ),
+    {
+      mode: "contributor",
+      skipCheck: false,
+      pullRemote: "source",
+      pullBranch: "stable",
+      pushRemote: "fork",
+      pushBranch: "topic",
+      message: "docs: update",
+    },
+  )
 })
 
-test("owner sync combines independent local and remote Markdown changes", () => {
+test("owner sync rebases non-conflicting local work and pushes without force", () => {
   const root = mkdtempSync(path.join(tmpdir(), "repository-sync-owner-"))
   try {
     const bare = createSeedRepository(root)
@@ -95,23 +116,23 @@ test("owner sync combines independent local and remote Markdown changes", () => 
     git(root, "clone", bare, remote)
     configure(local)
     configure(remote)
-    installScripts(local)
+    installScript(local)
 
     const localFile = path.join(local, "content", "note.md")
-    writeFileSync(localFile, readFileSync(localFile, "utf8").replace("Base local.", "Local edit."))
+    writeFileSync(localFile, readFileSync(localFile, "utf8").replace("Local section.", "Local edit."))
 
     const remoteFile = path.join(remote, "content", "note.md")
-    writeFileSync(remoteFile, readFileSync(remoteFile, "utf8").replace("Base remote.", "Remote edit."))
+    writeFileSync(remoteFile, readFileSync(remoteFile, "utf8").replace("Remote section.", "Remote edit."))
     git(remote, "add", ".")
     git(remote, "commit", "-m", "Remote edit")
     git(remote, "push", "origin", "main")
 
-    const result = run(process.execPath, [path.join(local, "scripts", "repository-sync.mjs")], local)
-    assert.equal(result.status, 0)
-
-    const merged = readFileSync(localFile, "utf8")
-    assert.match(merged, /Local edit\./)
-    assert.match(merged, /Remote edit\./)
+    const result = run(
+      process.execPath,
+      [path.join(local, "scripts", "repository-sync.mjs"), "--no-check", "--message", "docs: local edit"],
+      local,
+    )
+    assert.equal(result.status, 0, result.stderr)
 
     git(remote, "pull", "--ff-only", "origin", "main")
     const published = readFileSync(remoteFile, "utf8")
@@ -122,55 +143,40 @@ test("owner sync combines independent local and remote Markdown changes", () => 
   }
 })
 
-test("contributor sync pulls upstream main and pushes only the feature branch to the fork", () => {
-  const root = mkdtempSync(path.join(tmpdir(), "repository-sync-contributor-"))
+test("sync stops on a conflicting rebase and does not push", () => {
+  const root = mkdtempSync(path.join(tmpdir(), "repository-sync-conflict-"))
   try {
-    const upstream = createSeedRepository(root)
-    const fork = path.join(root, "fork.git")
-    git(root, "clone", "--bare", upstream, fork)
+    const bare = createSeedRepository(root)
+    const local = path.join(root, "local")
+    const remote = path.join(root, "remote")
+    git(root, "clone", bare, local)
+    git(root, "clone", bare, remote)
+    configure(local)
+    configure(remote)
+    installScript(local)
 
-    const contributor = path.join(root, "contributor")
-    const maintainer = path.join(root, "maintainer")
-    git(root, "clone", fork, contributor)
-    git(root, "clone", upstream, maintainer)
-    configure(contributor)
-    configure(maintainer)
-    installScripts(contributor)
-    git(contributor, "remote", "add", "knowledge-upstream", upstream)
-    git(contributor, "switch", "-c", "docs/update")
+    const localFile = path.join(local, "content", "note.md")
+    writeFileSync(localFile, readFileSync(localFile, "utf8").replace("Local section.", "Local replacement."))
 
-    const contributorFile = path.join(contributor, "content", "note.md")
-    writeFileSync(
-      contributorFile,
-      readFileSync(contributorFile, "utf8").replace("Base local.", "Contributor edit."),
-    )
-
-    const maintainerFile = path.join(maintainer, "content", "note.md")
-    writeFileSync(
-      maintainerFile,
-      readFileSync(maintainerFile, "utf8").replace("Base remote.", "Maintainer edit."),
-    )
-    git(maintainer, "add", ".")
-    git(maintainer, "commit", "-m", "Maintainer edit")
-    git(maintainer, "push", "origin", "main")
+    const remoteFile = path.join(remote, "content", "note.md")
+    writeFileSync(remoteFile, readFileSync(remoteFile, "utf8").replace("Local section.", "Remote replacement."))
+    git(remote, "add", ".")
+    git(remote, "commit", "-m", "Remote replacement")
+    git(remote, "push", "origin", "main")
+    const remoteHead = git(remote, "rev-parse", "HEAD").stdout.trim()
 
     const result = run(
       process.execPath,
-      [path.join(contributor, "scripts", "repository-sync.mjs"), "--contributor"],
-      contributor,
+      [path.join(local, "scripts", "repository-sync.mjs"), "--no-check"],
+      local,
+      true,
     )
-    assert.equal(result.status, 0)
+    assert.notEqual(result.status, 0)
+    assert.match(result.stderr, /Nothing was pushed/)
+    assert.equal(git(root, "--git-dir", bare, "rev-parse", "main").stdout.trim(), remoteHead)
+    assert.match(git(local, "branch", "--list", "backup/repository-sync-*").stdout, /backup\/repository-sync-/)
 
-    const merged = readFileSync(contributorFile, "utf8")
-    assert.match(merged, /Contributor edit\./)
-    assert.match(merged, /Maintainer edit\./)
-
-    const verify = path.join(root, "verify")
-    git(root, "clone", fork, verify)
-    git(verify, "switch", "docs/update")
-    const published = readFileSync(path.join(verify, "content", "note.md"), "utf8")
-    assert.match(published, /Contributor edit\./)
-    assert.match(published, /Maintainer edit\./)
+    git(local, "rebase", "--abort")
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
