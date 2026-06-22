@@ -54,7 +54,7 @@ export const defaultContentPageLayout: PageLayout = {
     Component.RecentNotes({
       title: "Последние изменения",
       limit: 5,
-      showTags: true,
+      showTags: false,
     }),
     Component.DesktopOnly(Component.TableOfContents()),
   ],
@@ -87,7 +87,7 @@ export const defaultListPageLayout: PageLayout = {
     Component.RecentNotes({
       title: "Последние изменения",
       limit: 5,
-      showTags: true,
+      showTags: false,
     }),
     Component.DesktopOnly(Component.TableOfContents()),
   ],
